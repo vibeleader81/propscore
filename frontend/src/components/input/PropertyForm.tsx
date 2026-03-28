@@ -1,0 +1,318 @@
+import { useState } from 'react'
+import type { AssessmentRequest, PropertyType } from '../../types'
+import AddressSearch from './AddressSearch'
+
+interface PropertyFormProps {
+  onSubmit: (data: AssessmentRequest) => void
+  isLoading: boolean
+}
+
+const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
+  { value: 'house', label: 'House' },
+  { value: 'unit', label: 'Unit' },
+  { value: 'apartment', label: 'Apartment' },
+  { value: 'townhouse', label: 'Townhouse' },
+]
+
+function NumberSelector({
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 10,
+}: {
+  label: string
+  value: number
+  onChange: (n: number) => void
+  min?: number
+  max?: number
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
+      <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          className="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors font-bold text-lg"
+        >
+          −
+        </button>
+        <span className="flex-1 text-center font-semibold text-slate-800 text-base">
+          {value}
+        </span>
+        <button
+          type="button"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          className="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors font-bold text-lg"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function CurrencyInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  helpText,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  helpText?: string
+}) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9]/g, '')
+    onChange(raw)
+  }
+
+  const display = value ? Number(value).toLocaleString('en-AU') : ''
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
+      <div className="relative">
+        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-medium text-sm pointer-events-none">
+          $
+        </span>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={display}
+          onChange={handleChange}
+          placeholder={placeholder}
+          className="w-full pl-7 pr-4 py-3 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-sm bg-white shadow-sm"
+        />
+      </div>
+      {helpText && <p className="mt-1 text-xs text-slate-400">{helpText}</p>}
+    </div>
+  )
+}
+
+export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
+  const [address, setAddress] = useState('')
+  const [propertyType, setPropertyType] = useState<PropertyType>('house')
+  const [priceStr, setPriceStr] = useState('')
+  const [bedrooms, setBedrooms] = useState(3)
+  const [bathrooms, setBathrooms] = useState(2)
+  const [parking, setParking] = useState(1)
+  const [landSizeStr, setLandSizeStr] = useState('')
+  const [yearBuiltStr, setYearBuiltStr] = useState('')
+  const [annualIncomeStr, setAnnualIncomeStr] = useState('')
+  const [monthlyCostsStr, setMonthlyCostsStr] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {}
+    if (!address.trim()) newErrors.address = 'Please enter a property address'
+    if (!priceStr || Number(priceStr) < 50000) newErrors.price = 'Please enter a valid purchase price'
+    if (!annualIncomeStr || Number(annualIncomeStr) < 1) newErrors.annual_income = 'Please enter your annual income'
+    if (!monthlyCostsStr) newErrors.monthly_costs = 'Please enter your monthly costs (enter 0 if none)'
+    if (!landSizeStr && propertyType !== 'apartment' && propertyType !== 'unit') {
+      newErrors.land_size = 'Please enter land size (0 if not applicable)'
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!validate()) return
+
+    const data: AssessmentRequest = {
+      address: address.trim(),
+      price: Number(priceStr),
+      bedrooms,
+      bathrooms,
+      parking,
+      land_size_sqm: Number(landSizeStr) || 0,
+      year_built: yearBuiltStr ? Number(yearBuiltStr) : undefined,
+      annual_income: Number(annualIncomeStr),
+      monthly_costs: Number(monthlyCostsStr) || 0,
+      property_type: propertyType,
+    }
+    onSubmit(data)
+  }
+
+  const showLandSize = propertyType === 'house' || propertyType === 'townhouse'
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
+      {/* Hero */}
+      <div className="text-center mb-10">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">
+          Property Assessment
+        </h1>
+        <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto">
+          Enter the details below and our AI will score this property across 5 key investment pillars.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
+        {/* Section 1: Property Details */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 bg-blue-600 text-white rounded-full text-xs font-bold flex items-center justify-center">1</span>
+              <h2 className="font-bold text-slate-800 text-base">Property Details</h2>
+            </div>
+          </div>
+
+          <div className="p-6 space-y-5">
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Property Address <span className="text-rose-500">*</span>
+              </label>
+              <AddressSearch value={address} onChange={setAddress} />
+              {errors.address && (
+                <p className="mt-1.5 text-xs text-rose-600 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                  {errors.address}
+                </p>
+              )}
+            </div>
+
+            {/* Property Type */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Property Type</label>
+              <div className="grid grid-cols-4 gap-2">
+                {PROPERTY_TYPES.map(pt => (
+                  <button
+                    key={pt.value}
+                    type="button"
+                    onClick={() => setPropertyType(pt.value)}
+                    className={`py-2.5 px-2 rounded-xl text-sm font-medium border transition-all duration-150 ${
+                      propertyType === pt.value
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600'
+                    }`}
+                  >
+                    {pt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Price */}
+            <CurrencyInput
+              label="Purchase Price *"
+              value={priceStr}
+              onChange={setPriceStr}
+              placeholder="850,000"
+              helpText="Enter the listed or expected purchase price"
+            />
+            {errors.price && <p className="text-xs text-rose-600 mt-1">{errors.price}</p>}
+
+            {/* Bedrooms / Bathrooms / Parking */}
+            <div className="grid grid-cols-3 gap-4">
+              <NumberSelector label="Bedrooms" value={bedrooms} onChange={setBedrooms} min={1} />
+              <NumberSelector label="Bathrooms" value={bathrooms} onChange={setBathrooms} min={1} />
+              <NumberSelector label="Parking" value={parking} onChange={setParking} min={0} />
+            </div>
+
+            {/* Land Size + Year Built */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Land Size (m²) {showLandSize && <span className="text-rose-500">*</span>}
+                </label>
+                <input
+                  type="number"
+                  value={landSizeStr}
+                  onChange={e => setLandSizeStr(e.target.value)}
+                  placeholder={showLandSize ? '450' : '0 (not applicable)'}
+                  min="0"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white shadow-sm"
+                />
+                {errors.land_size && <p className="text-xs text-rose-600 mt-1">{errors.land_size}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Year Built (optional)</label>
+                <input
+                  type="number"
+                  value={yearBuiltStr}
+                  onChange={e => setYearBuiltStr(e.target.value)}
+                  placeholder="e.g. 1995"
+                  min="1800"
+                  max={new Date().getFullYear()}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white shadow-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2: Financial Profile */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 bg-blue-600 text-white rounded-full text-xs font-bold flex items-center justify-center">2</span>
+              <h2 className="font-bold text-slate-800 text-base">Your Financial Profile</h2>
+            </div>
+          </div>
+
+          <div className="p-6 space-y-5">
+            <div className="flex items-start gap-3 p-3.5 bg-blue-50 rounded-xl border border-blue-100">
+              <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <p className="text-xs text-blue-700 leading-relaxed">
+                We use these to assess affordability and mortgage stress risk. Your data stays in your browser session and is not stored.
+              </p>
+            </div>
+
+            <CurrencyInput
+              label="Annual Household Income *"
+              value={annualIncomeStr}
+              onChange={setAnnualIncomeStr}
+              placeholder="120,000"
+              helpText="Combined gross income of all borrowers"
+            />
+            {errors.annual_income && <p className="text-xs text-rose-600 -mt-3">{errors.annual_income}</p>}
+
+            <CurrencyInput
+              label="Monthly Committed Costs *"
+              value={monthlyCostsStr}
+              onChange={setMonthlyCostsStr}
+              placeholder="2,500"
+              helpText="Existing loan repayments, rent, credit card minimums, etc."
+            />
+            {errors.monthly_costs && <p className="text-xs text-rose-600 -mt-3">{errors.monthly_costs}</p>}
+          </div>
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-400 disabled:to-slate-400 text-white font-bold text-base rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group"
+        >
+          {isLoading ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Assessing...
+            </>
+          ) : (
+            <>
+              Assess This Property
+              <svg
+                className="w-5 h-5 transition-transform group-hover:translate-x-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </>
+          )}
+        </button>
+      </form>
+    </div>
+  )
+}

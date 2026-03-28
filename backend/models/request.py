@@ -1,0 +1,26 @@
+from typing import Optional
+from pydantic import BaseModel, Field
+
+
+class AssessmentRequest(BaseModel):
+    address: str = Field(..., description="Full Australian property address")
+    price: float = Field(..., gt=0, description="Purchase price in AUD")
+    bedrooms: int = Field(..., ge=0, le=20)
+    bathrooms: int = Field(..., ge=0, le=20)
+    parking: int = Field(..., ge=0, le=20)
+    land_size_sqm: float = Field(
+        ..., ge=0, description="Land size in sqm; use 0 for apartments"
+    )
+    year_built: Optional[int] = Field(
+        default=None, ge=1800, le=2024, description="Year the property was built"
+    )
+    annual_income: float = Field(
+        ..., gt=0, description="Gross annual household income in AUD"
+    )
+    monthly_costs: float = Field(
+        ..., ge=0, description="Total existing monthly financial commitments in AUD"
+    )
+    property_type: str = Field(
+        default="house",
+        description="Property type: house | unit | apartment | townhouse",
+    )
