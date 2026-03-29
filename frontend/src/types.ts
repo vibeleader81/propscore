@@ -10,6 +10,7 @@ export interface AssessmentRequest {
   year_built?: number
   annual_income: number
   monthly_costs: number
+  deposit?: number
   property_type: PropertyType
 }
 
@@ -106,6 +107,9 @@ export interface AssessmentResponse {
   alternatives: AlternativeSuburb[]
   monthly_repayment: number
   borrowing_capacity: number
+  deposit: number
+  lvr_pct: number
+  lmi_required: boolean
   ai_analysis?: AIAnalysis
 }
 

@@ -97,3 +97,6 @@ class AssessmentResponse(BaseModel):
     risk_profile: Optional[RiskProfile] = None
     domain_market_data: Optional[DomainMarketData] = None
     ai_analysis: Optional[AIAnalysis] = None
+    deposit: float = 0
+    lvr_pct: float = 0
+    lmi_required: bool = False

@@ -20,6 +20,9 @@ class AssessmentRequest(BaseModel):
     monthly_costs: float = Field(
         ..., ge=0, description="Total existing monthly financial commitments in AUD"
     )
+    deposit: float = Field(
+        default=0, ge=0, description="Available deposit in AUD (excluding stamp duty/costs)"
+    )
     property_type: str = Field(
         default="house",
         description="Property type: house | unit | apartment | townhouse",

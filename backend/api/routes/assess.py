@@ -1,4 +1,5 @@
 import asyncio
+from typing import Optional
 from fastapi import APIRouter, HTTPException
 from models.request import AssessmentRequest
 from models.response import (
@@ -22,9 +23,6 @@ def _parse_ai_dimension(raw: dict, key: str) -> Optional[AIDimensionScore]:
     if val and isinstance(val, dict) and "score" in val:
         return AIDimensionScore(score=val["score"], rationale=val.get("rationale", ""))
     return None
-
-
-from typing import Optional
 
 
 @router.post("/assess", response_model=AssessmentResponse)
@@ -251,6 +249,9 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
                     "monthly_costs": request.monthly_costs,
                     "monthly_repayment": monthly_repayment,
                     "borrowing_capacity": borrowing_capacity,
+                    "deposit": request.deposit,
+                    "lvr_pct": round((request.price - request.deposit) / request.price * 100, 1) if request.price > 0 else 100.0,
+                    "lmi_required": request.deposit < request.price * 0.2,
                 },
                 api_key=settings.ANTHROPIC_API_KEY,
             )
@@ -304,4 +305,7 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         risk_profile=risk_response,
         domain_market_data=domain_market,
         ai_analysis=ai_result,
+        deposit=request.deposit,
+        lvr_pct=round((request.price - request.deposit) / request.price * 100, 1) if request.price > 0 else 100.0,
+        lmi_required=request.deposit < request.price * 0.2,
     )

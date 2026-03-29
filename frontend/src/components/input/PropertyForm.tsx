@@ -105,6 +105,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const [yearBuiltStr, setYearBuiltStr] = useState('')
   const [annualIncomeStr, setAnnualIncomeStr] = useState('')
   const [monthlyCostsStr, setMonthlyCostsStr] = useState('')
+  const [depositStr, setDepositStr] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const validate = (): boolean => {
@@ -134,6 +135,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
       year_built: yearBuiltStr ? Number(yearBuiltStr) : undefined,
       annual_income: Number(annualIncomeStr),
       monthly_costs: Number(monthlyCostsStr) || 0,
+      deposit: Number(depositStr) || 0,
       property_type: propertyType,
     }
     onSubmit(data)
@@ -284,6 +286,14 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
               helpText="Existing loan repayments, rent, credit card minimums, etc."
             />
             {errors.monthly_costs && <p className="text-xs text-rose-600 -mt-3">{errors.monthly_costs}</p>}
+
+            <CurrencyInput
+              label="Available Deposit"
+              value={depositStr}
+              onChange={setDepositStr}
+              placeholder="200,000"
+              helpText="Cash available for deposit — excludes stamp duty and purchase costs"
+            />
           </div>
         </div>
 

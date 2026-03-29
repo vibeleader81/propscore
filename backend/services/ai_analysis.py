@@ -157,6 +157,9 @@ def _build_property_context(
         f"Monthly Costs/Expenses: ${financials.get('monthly_costs', 0):,.0f}",
         f"Estimated Monthly Repayment (P&I, 30yr): ${financials.get('monthly_repayment', 0):,.0f}",
         f"Estimated Borrowing Capacity: ${financials.get('borrowing_capacity', 0):,.0f}",
+        f"Deposit Available: ${financials.get('deposit', 0):,.0f}",
+        f"Loan-to-Value Ratio (LVR): {financials.get('lvr_pct', 100):.1f}%",
+        f"LMI Required (LVR >80%): {'Yes — adds significant upfront cost' if financials.get('lmi_required') else 'No'}",
         "",
         "=== SUBURB STATISTICS ===",
     ]

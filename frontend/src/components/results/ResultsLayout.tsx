@@ -76,10 +76,16 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
         <div className="lg:col-span-1 flex justify-center">
           <ScoreGauge score={displayScore} band={displayBand} />
         </div>
-        <div className="lg:col-span-2 grid grid-cols-2 gap-3">
+        <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
           <StatCard label="Monthly Repayment" value={formatCurrency(result.monthly_repayment)} sub="estimated P&I" />
           <StatCard label="Borrowing Capacity" value={formatCurrency(result.borrowing_capacity)} sub="based on your income" />
           <StatCard label="Overall Score" value={`${Math.round(displayScore)} / 100`} sub={hasAI ? 'AI expert score' : 'composite score'} />
+          {result.deposit > 0 && (
+            <StatCard label="Deposit" value={formatCurrency(result.deposit)} sub={result.lmi_required ? '⚠️ LMI required' : '✅ No LMI needed'} />
+          )}
+          {result.deposit > 0 && (
+            <StatCard label="LVR" value={`${result.lvr_pct.toFixed(1)}%`} sub={result.lmi_required ? 'above 80% — adds cost' : 'below 80% — clean'} />
+          )}
           <StatCard label="Location" value={`${result.pillars.location.score} / 100`} sub="location score" />
         </div>
       </div>
