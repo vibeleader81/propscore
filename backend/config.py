@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
     MORTGAGE_RATE: float = 0.065
     DOMAIN_API_KEY: Optional[str] = None
+    ANTHROPIC_API_KEY: Optional[str] = None
 
 
 settings = Settings()

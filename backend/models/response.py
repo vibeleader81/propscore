@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel
 
 
@@ -47,6 +47,36 @@ class DomainMarketData(BaseModel):
     data_available: bool = False
 
 
+class AIFlag(BaseModel):
+    type: Literal["red", "golden", "green", "fixable"]
+    factor: str
+    explanation: str
+
+
+class AIDimensionScore(BaseModel):
+    score: float
+    rationale: str
+
+
+class AIDimensionScores(BaseModel):
+    location_liveability: Optional[AIDimensionScore] = None
+    environmental_risk: Optional[AIDimensionScore] = None
+    property_land_quality: Optional[AIDimensionScore] = None
+    capital_growth_potential: Optional[AIDimensionScore] = None
+    neighbourhood_quality: Optional[AIDimensionScore] = None
+
+
+class AIAnalysis(BaseModel):
+    available: bool = False
+    flags: list[AIFlag] = []
+    dimension_scores: Optional[AIDimensionScores] = None
+    composite_score: Optional[float] = None
+    has_critical_veto: bool = False
+    veto_reasons: list[str] = []
+    verdict: Optional[str] = None
+    data_gaps: list[str] = []
+
+
 class AssessmentResponse(BaseModel):
     overall_score: float
     band: str
@@ -66,3 +96,4 @@ class AssessmentResponse(BaseModel):
     walkability: Optional[WalkabilityData] = None
     risk_profile: Optional[RiskProfile] = None
     domain_market_data: Optional[DomainMarketData] = None
+    ai_analysis: Optional[AIAnalysis] = None

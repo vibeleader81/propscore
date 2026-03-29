@@ -58,6 +58,38 @@ export type AssessmentBand =
   | 'Significant Concerns'
   | 'Not Recommended'
 
+export type AIFlagType = 'red' | 'golden' | 'green' | 'fixable'
+
+export interface AIFlag {
+  type: AIFlagType
+  factor: string
+  explanation: string
+}
+
+export interface AIDimensionScore {
+  score: number
+  rationale: string
+}
+
+export interface AIDimensionScores {
+  location_liveability?: AIDimensionScore
+  environmental_risk?: AIDimensionScore
+  property_land_quality?: AIDimensionScore
+  capital_growth_potential?: AIDimensionScore
+  neighbourhood_quality?: AIDimensionScore
+}
+
+export interface AIAnalysis {
+  available: boolean
+  flags: AIFlag[]
+  dimension_scores?: AIDimensionScores
+  composite_score?: number
+  has_critical_veto: boolean
+  veto_reasons: string[]
+  verdict?: string
+  data_gaps: string[]
+}
+
 export interface AssessmentResponse {
   overall_score: number
   band: AssessmentBand
@@ -74,6 +106,7 @@ export interface AssessmentResponse {
   alternatives: AlternativeSuburb[]
   monthly_repayment: number
   borrowing_capacity: number
+  ai_analysis?: AIAnalysis
 }
 
 export interface GeocodeResult {
