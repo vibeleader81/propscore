@@ -46,89 +46,168 @@ export default function App() {
   const showHero = !result && !isLoading
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f5f3f7' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#f7f5f9' }}>
       <Header hasResult={!!result} onReset={handleReset} />
 
       <main className="flex-1">
 
-        {/* ── Hero ─────────────────────────────────────────────── */}
+        {/* ── HERO ─────────────────────────────── */}
         {showHero && (
           <div
-            className="relative overflow-hidden"
             style={{
-              background: 'linear-gradient(160deg, #4f345a 0%, #5d4e6d 55%, #7a6b8a 100%)',
+              background: 'radial-gradient(ellipse at 50% 0%, #6b4d78 0%, #4f345a 50%, #3a2444 100%)',
+              position: 'relative',
+              overflow: 'hidden',
+              paddingTop: '88px',
+              paddingBottom: '100px',
             }}
           >
-            {/* Subtle dot grid overlay */}
-            <div
-              className="absolute inset-0 opacity-[0.07]"
-              style={{
-                backgroundImage: 'radial-gradient(circle, #c9f299 1px, transparent 1px)',
-                backgroundSize: '28px 28px',
-              }}
-            />
+            {/* Blueprint survey grid */}
+            <div className="blueprint-grid" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
 
-            <div className="relative max-w-3xl mx-auto px-4 pt-16 pb-20 text-center">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2.5 bg-[#c9f299]/10 border border-[#c9f299]/20 rounded-full px-4 py-1.5 mb-7">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#c9f299] animate-pulse" />
-                <span className="text-[#c9f299] text-xs font-bold uppercase tracking-widest">Expert AI Analysis</span>
-                <span className="text-[#8fa998] text-xs">10 criteria</span>
+            {/* Radial lime glow from top */}
+            <div style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none',
+              background: 'radial-gradient(ellipse 900px 350px at 50% -80px, rgba(201,242,153,0.05) 0%, transparent 70%)',
+            }} />
+
+            {/* Corner coordinate labels */}
+            <div style={{
+              position: 'absolute', top: '20px', left: '24px',
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '9px',
+              color: 'rgba(143,169,152,0.35)',
+              letterSpacing: '0.06em',
+              userSelect: 'none',
+            }}>
+              33°52′S 151°12′E
+            </div>
+            <div style={{
+              position: 'absolute', top: '20px', right: '24px',
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '9px',
+              color: 'rgba(143,169,152,0.35)',
+              letterSpacing: '0.06em',
+              userSelect: 'none',
+            }}>
+              GRID REF AU-2024
+            </div>
+
+            {/* Central content */}
+            <div style={{ position: 'relative', zIndex: 1, maxWidth: '760px', margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
+
+              {/* Intelligence badge */}
+              <div
+                className="animate-fade-up"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  background: 'rgba(201,242,153,0.07)',
+                  border: '1px solid rgba(201,242,153,0.14)',
+                  borderRadius: '100px',
+                  padding: '8px 18px',
+                  marginBottom: '40px',
+                }}
+              >
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#c9f299', boxShadow: '0 0 8px rgba(201,242,153,0.7)' }} />
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#c9f299', letterSpacing: '0.13em', textTransform: 'uppercase' }}>
+                  Property Intelligence Platform
+                </span>
+                <span style={{ width: '1px', height: '11px', background: 'rgba(201,242,153,0.18)' }} />
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8fa998', letterSpacing: '0.08em' }}>
+                  10 criteria
+                </span>
               </div>
 
-              {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-[1.1] tracking-tight">
-                Your AI Buyers Agent<br />
-                <span style={{ color: '#c9f299' }}>Before You Buy</span>
+              {/* Main headline */}
+              <h1
+                className="animate-fade-up-delay-1"
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  fontSize: 'clamp(52px, 9vw, 88px)',
+                  fontWeight: 700,
+                  color: 'white',
+                  lineHeight: 1.0,
+                  letterSpacing: '-0.035em',
+                  marginBottom: '28px',
+                }}
+              >
+                Know Before<br />
+                <em style={{ fontStyle: 'italic', color: '#c9f299' }}>You Offer</em>
               </h1>
 
-              {/* Sub */}
-              <p className="text-[#9cbfa7] text-lg sm:text-xl mb-10 leading-relaxed max-w-xl mx-auto">
-                Paste any Australian address. We'll evaluate orientation, flood risk, zoning,
-                school catchments, capital growth and more — in seconds.
+              {/* Subhead */}
+              <p
+                className="animate-fade-up-delay-2"
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 'clamp(16px, 2.5vw, 19px)',
+                  color: 'rgba(156,191,167,0.85)',
+                  lineHeight: 1.65,
+                  maxWidth: '500px',
+                  margin: '0 auto 52px',
+                  fontWeight: 400,
+                }}
+              >
+                Expert-grade Australian property analysis in seconds — flood risk, zoning, capital growth, school catchments, and one decisive verdict.
               </p>
 
               {/* Feature pills */}
-              <div className="flex flex-wrap justify-center gap-2">
+              <div
+                className="animate-fade-up-delay-3"
+                style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px' }}
+              >
                 {FEATURES.map(f => (
                   <span
                     key={f.label}
-                    className="flex items-center gap-1.5 text-xs text-white/70 bg-white/[0.08] hover:bg-white/[0.12] border border-white/10 px-3 py-1.5 rounded-full transition-colors duration-150"
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: '12px',
+                      fontWeight: 400,
+                      color: 'rgba(255,255,255,0.55)',
+                      background: 'rgba(255,255,255,0.055)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      padding: '7px 14px',
+                      borderRadius: '100px',
+                    }}
                   >
-                    <span>{f.emoji}</span>
-                    {f.label}
+                    {f.emoji} {f.label}
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* Wave transition to form */}
-            <div className="h-10 relative">
-              <svg
-                viewBox="0 0 1440 40"
-                className="absolute bottom-0 w-full"
-                preserveAspectRatio="none"
-                style={{ fill: '#f5f3f7' }}
-              >
-                <path d="M0,40 C360,0 1080,0 1440,40 L1440,40 L0,40 Z" />
-              </svg>
-            </div>
+            {/* Bottom bleed into form */}
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0, height: '80px',
+              background: 'linear-gradient(to bottom, transparent, #f7f5f9)',
+              pointerEvents: 'none',
+            }} />
           </div>
         )}
 
-        {/* ── Error ────────────────────────────────────────────── */}
+        {/* ── ERROR ─────────────────────────────── */}
         {error && !isLoading && (
-          <div className="max-w-3xl mx-auto px-4 mt-6">
-            <div className="bg-rose-50 border border-rose-200 rounded-2xl p-5 flex items-start gap-4">
-              <div className="w-9 h-9 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-rose-600" fill="currentColor" viewBox="0 0 20 20">
+          <div style={{ maxWidth: '720px', margin: '24px auto 0', padding: '0 24px' }}>
+            <div style={{
+              background: '#fff5f5',
+              border: '1px solid #fed7d7',
+              borderRadius: '16px',
+              padding: '20px 24px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '16px',
+            }}>
+              <div style={{ width: '36px', height: '36px', background: '#fff0f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="#e53e3e">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-rose-800 mb-1">Assessment Failed</h3>
-                <p className="text-sm text-rose-700 leading-relaxed">{error}</p>
-                <button onClick={() => setError(null)} className="mt-2 text-sm font-semibold text-rose-600 hover:text-rose-800 underline underline-offset-2">
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: '#c53030', marginBottom: '4px', fontSize: '14px' }}>Assessment Failed</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", color: '#742a2a', fontSize: '13px', lineHeight: 1.5 }}>{error}</div>
+                <button onClick={() => setError(null)} style={{ marginTop: '10px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#c53030', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
                   Try again
                 </button>
               </div>
@@ -136,11 +215,13 @@ export default function App() {
           </div>
         )}
 
-        {/* ── States ───────────────────────────────────────────── */}
+        {/* ── LOADING ───────────────────────────── */}
         {isLoading && <LoadingProgress address={submittedAddress} />}
 
+        {/* ── FORM ──────────────────────────────── */}
         {!isLoading && !result && <PropertyForm onSubmit={handleSubmit} isLoading={isLoading} />}
 
+        {/* ── RESULTS ───────────────────────────── */}
         {!isLoading && result && <ResultsLayout result={result} address={submittedAddress} />}
 
       </main>

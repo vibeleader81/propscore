@@ -15,82 +15,158 @@ const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
   { value: 'townhouse', label: 'Townhouse' },
 ]
 
-function NumberSelector({
-  label,
-  value,
-  onChange,
-  min = 0,
-  max = 10,
-}: {
-  label: string
-  value: number
-  onChange: (n: number) => void
-  min?: number
-  max?: number
-}) {
+function SectionLabel({ number, title }: { number: string; title: string }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
-      <div className="flex items-center border border-[#4f345a]/15 rounded-xl overflow-hidden bg-white shadow-sm">
-        <button
-          type="button"
-          onClick={() => onChange(Math.max(min, value - 1))}
-          className="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-[#4f345a]/5 hover:text-[#4f345a] transition-colors font-bold text-lg"
-        >
-          −
-        </button>
-        <span className="flex-1 text-center font-semibold text-slate-800 text-base">
-          {value}
-        </span>
-        <button
-          type="button"
-          onClick={() => onChange(Math.min(max, value + 1))}
-          className="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-[#4f345a]/5 hover:text-[#4f345a] transition-colors font-bold text-lg"
-        >
-          +
-        </button>
+    <div style={{ padding: '18px 28px 16px', borderBottom: '1px solid rgba(79,52,90,0.07)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <span style={{
+          fontFamily: "'Fraunces', serif",
+          fontSize: '32px',
+          fontWeight: 300,
+          color: 'rgba(79,52,90,0.15)',
+          lineHeight: 1,
+          letterSpacing: '-0.03em',
+          userSelect: 'none',
+        }}>{number}</span>
+        <span style={{
+          fontFamily: "'DM Mono', monospace",
+          fontSize: '10px',
+          fontWeight: 500,
+          color: '#4f345a',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+        }}>{title}</span>
       </div>
     </div>
   )
 }
 
+function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+  return (
+    <label style={{
+      display: 'block',
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: '12px',
+      fontWeight: 600,
+      color: '#4f345a',
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase',
+      marginBottom: '8px',
+    }}>
+      {children}
+      {required && <span style={{ color: '#c9f299', marginLeft: '3px' }}>*</span>}
+    </label>
+  )
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '11px 14px',
+  border: '1px solid rgba(79,52,90,0.15)',
+  borderRadius: '10px',
+  fontFamily: "'DM Sans', sans-serif",
+  fontSize: '14px',
+  color: '#1a1025',
+  background: 'white',
+  outline: 'none',
+  transition: 'border-color 0.15s, box-shadow 0.15s',
+}
+
+function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  const [focused, setFocused] = useState(false)
+  return (
+    <input
+      {...props}
+      style={{
+        ...inputStyle,
+        borderColor: focused ? '#9cbfa7' : 'rgba(79,52,90,0.15)',
+        boxShadow: focused ? '0 0 0 3px rgba(156,191,167,0.18)' : 'none',
+      }}
+      onFocus={e => { setFocused(true); props.onFocus?.(e) }}
+      onBlur={e => { setFocused(false); props.onBlur?.(e) }}
+    />
+  )
+}
+
 function CurrencyInput({
-  label,
-  value,
-  onChange,
-  placeholder,
-  helpText,
+  label, value, onChange, placeholder, helpText, required,
 }: {
-  label: string
-  value: string
-  onChange: (v: string) => void
-  placeholder?: string
-  helpText?: string
+  label: string; value: string; onChange: (v: string) => void
+  placeholder?: string; helpText?: string; required?: boolean
 }) {
+  const [focused, setFocused] = useState(false)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/[^0-9]/g, '')
-    onChange(raw)
+    onChange(e.target.value.replace(/[^0-9]/g, ''))
   }
-
   const display = value ? Number(value).toLocaleString('en-AU') : ''
-
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
-      <div className="relative">
-        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[#8fa998] font-medium text-sm pointer-events-none">
-          $
-        </span>
+      <FieldLabel required={required}>{label}</FieldLabel>
+      <div style={{ position: 'relative' }}>
+        <span style={{
+          position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)',
+          fontFamily: "'DM Mono', monospace",
+          fontSize: '14px',
+          color: focused ? '#8fa998' : 'rgba(143,169,152,0.7)',
+          pointerEvents: 'none',
+          transition: 'color 0.15s',
+        }}>$</span>
         <input
           type="text"
           inputMode="numeric"
           value={display}
           onChange={handleChange}
           placeholder={placeholder}
-          className="w-full pl-7 pr-4 py-3 border border-[#4f345a]/15 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9cbfa7] focus:border-[#9cbfa7] transition-shadow text-sm bg-white shadow-sm"
+          style={{
+            ...inputStyle,
+            paddingLeft: '28px',
+            fontFamily: "'DM Mono', monospace",
+            borderColor: focused ? '#9cbfa7' : 'rgba(79,52,90,0.15)',
+            boxShadow: focused ? '0 0 0 3px rgba(156,191,167,0.18)' : 'none',
+          }}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
         />
       </div>
-      {helpText && <p className="mt-1 text-xs text-slate-400">{helpText}</p>}
+      {helpText && <p style={{ marginTop: '5px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#8fa998' }}>{helpText}</p>}
+    </div>
+  )
+}
+
+function NumberSelector({
+  label, value, onChange, min = 0, max = 10,
+}: {
+  label: string; value: number; onChange: (n: number) => void; min?: number; max?: number
+}) {
+  const btnStyle = (disabled: boolean): React.CSSProperties => ({
+    width: '32px', height: '32px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'none',
+    border: '1px solid rgba(79,52,90,0.18)',
+    borderRadius: '8px',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    color: disabled ? 'rgba(79,52,90,0.3)' : '#4f345a',
+    fontSize: '16px',
+    fontWeight: 500,
+    transition: 'all 0.12s',
+    flexShrink: 0,
+  })
+  return (
+    <div>
+      <FieldLabel>{label}</FieldLabel>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <button type="button" onClick={() => onChange(Math.max(min, value - 1))} style={btnStyle(value <= min)}>−</button>
+        <span style={{
+          fontFamily: "'Fraunces', serif",
+          fontSize: '22px',
+          fontWeight: 500,
+          color: '#4f345a',
+          minWidth: '28px',
+          textAlign: 'center',
+          letterSpacing: '-0.02em',
+        }}>{value}</span>
+        <button type="button" onClick={() => onChange(Math.min(max, value + 1))} style={btnStyle(value >= max)}>+</button>
+      </div>
     </div>
   )
 }
@@ -150,239 +226,266 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-
-    const data: AssessmentRequest = {
+    onSubmit({
       address: address.trim(),
       price: Number(priceStr),
-      bedrooms,
-      bathrooms,
-      parking,
+      bedrooms, bathrooms, parking,
       land_size_sqm: Number(landSizeStr) || 0,
       year_built: yearBuiltStr ? Number(yearBuiltStr) : undefined,
       annual_income: Number(annualIncomeStr),
       monthly_costs: Number(monthlyCostsStr) || 0,
       deposit: Number(depositStr) || 0,
       property_type: propertyType,
-    }
-    onSubmit(data)
+    })
   }
 
   const showLandSize = propertyType === 'house' || propertyType === 'townhouse'
 
+  const cardStyle: React.CSSProperties = {
+    background: 'white',
+    borderRadius: '20px',
+    border: '1px solid rgba(79,52,90,0.1)',
+    overflow: 'hidden',
+    boxShadow: '0 2px 24px rgba(79,52,90,0.06)',
+    borderTop: '3px solid #c9f299',
+  }
+
+  const errorStyle: React.CSSProperties = {
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: '11px',
+    color: '#e53e3e',
+    marginTop: '5px',
+  }
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 sm:py-10">
-      <form onSubmit={handleSubmit} noValidate className="space-y-6">
-        {/* Section 1: Property Details */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#4f345a]/15 overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#4f345a]/10 bg-[#4f345a]/5">
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-[#4f345a] text-[#c9f299] rounded-full text-xs font-bold flex items-center justify-center">1</span>
-              <h2 className="font-bold text-slate-800 text-base">Property Details</h2>
-            </div>
-          </div>
+    <div style={{ maxWidth: '680px', margin: '0 auto', padding: '40px 20px 80px' }}>
+      <form onSubmit={handleSubmit} noValidate>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-          <div className="p-6 space-y-5">
-            {/* Address */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Property Address <span className="text-rose-500">*</span>
-              </label>
-              <AddressSearch value={address} onChange={handleAddressSelected} />
-              {errors.address && (
-                <p className="mt-1.5 text-xs text-rose-600 flex items-center gap-1">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                  {errors.address}
-                </p>
-              )}
-              {/* Domain autofill card */}
-              {isLookingUp && (
-                <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                  <div className="w-3 h-3 border border-[#9cbfa7] border-t-transparent rounded-full animate-spin" />
-                  Looking up on Domain.com.au...
-                </div>
-              )}
-              {domainData?.found && !isLookingUp && (
-                <div className="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="text-emerald-600 text-xs font-bold uppercase tracking-wide">✓ Found on Domain.com.au</span>
-                      </div>
-                      {domainData.headline && (
-                        <p className="text-xs text-slate-600 truncate mb-1">{domainData.headline}</p>
-                      )}
-                      <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                        {domainData.bedrooms != null && <span>🛏 {domainData.bedrooms} bed</span>}
-                        {domainData.bathrooms != null && <span>🚿 {domainData.bathrooms} bath</span>}
-                        {domainData.parking != null && <span>🚗 {domainData.parking} car</span>}
-                        {domainData.land_size_sqm != null && <span>📐 {Math.round(domainData.land_size_sqm)}m²</span>}
-                        {domainData.display_price && <span>💰 {domainData.display_price}</span>}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={applyDomainAutofill}
-                      className="flex-shrink-0 px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
-                    >
-                      Autofill
-                    </button>
+          {/* ── SECTION 01: Property Details ── */}
+          <div style={cardStyle}>
+            <SectionLabel number="01" title="Property Details" />
+            <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+
+              {/* Address */}
+              <div>
+                <FieldLabel required>Property Address</FieldLabel>
+                <AddressSearch value={address} onChange={handleAddressSelected} />
+                {errors.address && <p style={errorStyle}>{errors.address}</p>}
+
+                {/* Domain lookup indicator */}
+                {isLookingUp && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8fa998', letterSpacing: '0.06em' }}>
+                    <div style={{ width: '12px', height: '12px', border: '1.5px solid #9cbfa7', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                    Looking up on Domain.com.au...
                   </div>
-                  {domainData.listing_url && (
-                    <a
-                      href={domainData.listing_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 block text-xs text-emerald-600 hover:underline"
+                )}
+
+                {/* Domain autofill card */}
+                {domainData?.found && !isLookingUp && (
+                  <div style={{
+                    marginTop: '12px',
+                    background: 'rgba(156,191,167,0.08)',
+                    border: '1px solid rgba(156,191,167,0.35)',
+                    borderRadius: '12px',
+                    padding: '14px 16px',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#5a8a6a', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '6px' }}>
+                          ✓ Found on Domain.com.au
+                        </div>
+                        {domainData.headline && (
+                          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#2d4a35', marginBottom: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {domainData.headline}
+                          </p>
+                        )}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#5a8a6a' }}>
+                          {domainData.bedrooms != null && <span>🛏 {domainData.bedrooms}</span>}
+                          {domainData.bathrooms != null && <span>🚿 {domainData.bathrooms}</span>}
+                          {domainData.parking != null && <span>🚗 {domainData.parking}</span>}
+                          {domainData.land_size_sqm != null && <span>📐 {Math.round(domainData.land_size_sqm)}m²</span>}
+                          {domainData.display_price && <span>💰 {domainData.display_price}</span>}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={applyDomainAutofill}
+                        style={{
+                          flexShrink: 0,
+                          padding: '8px 14px',
+                          background: '#4f345a',
+                          color: '#c9f299',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontFamily: "'DM Mono', monospace",
+                          fontSize: '10px',
+                          fontWeight: 500,
+                          letterSpacing: '0.08em',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Autofill
+                      </button>
+                    </div>
+                    {domainData.listing_url && (
+                      <a href={domainData.listing_url} target="_blank" rel="noopener noreferrer"
+                        style={{ display: 'block', marginTop: '8px', fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#5a8a6a', letterSpacing: '0.04em', textDecoration: 'none' }}>
+                        View on Domain.com.au →
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Property type */}
+              <div>
+                <FieldLabel>Property Type</FieldLabel>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {PROPERTY_TYPES.map(pt => (
+                    <button
+                      key={pt.value}
+                      type="button"
+                      onClick={() => setPropertyType(pt.value)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '7px',
+                        padding: '9px 18px',
+                        borderRadius: '100px',
+                        border: propertyType === pt.value ? '1px solid #4f345a' : '1px solid rgba(79,52,90,0.15)',
+                        background: propertyType === pt.value ? '#4f345a' : 'white',
+                        color: propertyType === pt.value ? 'white' : '#5d4e6d',
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: '13px',
+                        fontWeight: propertyType === pt.value ? 600 : 400,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                      }}
                     >
-                      View listing on Domain.com.au →
-                    </a>
-                  )}
+                      {propertyType === pt.value && (
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#c9f299', flexShrink: 0 }} />
+                      )}
+                      {pt.label}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
-
-            {/* Property Type */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Property Type</label>
-              <div className="grid grid-cols-4 gap-2">
-                {PROPERTY_TYPES.map(pt => (
-                  <button
-                    key={pt.value}
-                    type="button"
-                    onClick={() => setPropertyType(pt.value)}
-                    className={`py-2.5 px-2 rounded-xl text-sm font-medium border transition-all duration-150 ${
-                      propertyType === pt.value
-                        ? 'bg-[#4f345a] text-white border-[#4f345a]'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-[#8fa998]'
-                    }`}
-                  >
-                    {pt.label}
-                  </button>
-                ))}
               </div>
-            </div>
 
-            {/* Price */}
-            <CurrencyInput
-              label="Purchase Price *"
-              value={priceStr}
-              onChange={setPriceStr}
-              placeholder="850,000"
-              helpText="Enter the listed or expected purchase price"
-            />
-            {errors.price && <p className="text-xs text-rose-600 mt-1">{errors.price}</p>}
-
-            {/* Bedrooms / Bathrooms / Parking */}
-            <div className="grid grid-cols-3 gap-4">
-              <NumberSelector label="Bedrooms" value={bedrooms} onChange={setBedrooms} min={1} />
-              <NumberSelector label="Bathrooms" value={bathrooms} onChange={setBathrooms} min={1} />
-              <NumberSelector label="Parking" value={parking} onChange={setParking} min={0} />
-            </div>
-
-            {/* Land Size + Year Built */}
-            <div className="grid grid-cols-2 gap-4">
+              {/* Price */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Land Size (m²) {showLandSize && <span className="text-rose-500">*</span>}
-                </label>
-                <input
-                  type="number"
-                  value={landSizeStr}
-                  onChange={e => setLandSizeStr(e.target.value)}
-                  placeholder={showLandSize ? '450' : '0 (not applicable)'}
-                  min="0"
-                  className="w-full px-4 py-3 border border-[#4f345a]/15 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9cbfa7] focus:border-[#9cbfa7] text-sm bg-white shadow-sm"
-                />
-                {errors.land_size && <p className="text-xs text-rose-600 mt-1">{errors.land_size}</p>}
+                <CurrencyInput label="Purchase Price" value={priceStr} onChange={setPriceStr} placeholder="850,000" helpText="Listed or expected purchase price in AUD" required />
+                {errors.price && <p style={errorStyle}>{errors.price}</p>}
               </div>
+
+              {/* Bed / Bath / Parking */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                <NumberSelector label="Bedrooms" value={bedrooms} onChange={setBedrooms} min={1} />
+                <NumberSelector label="Bathrooms" value={bathrooms} onChange={setBathrooms} min={1} />
+                <NumberSelector label="Parking" value={parking} onChange={setParking} min={0} />
+              </div>
+
+              {/* Land size + Year built */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <FieldLabel required={showLandSize}>Land Size (m²)</FieldLabel>
+                  <TextInput
+                    type="number"
+                    value={landSizeStr}
+                    onChange={e => setLandSizeStr(e.target.value)}
+                    placeholder={showLandSize ? '450' : '0'}
+                    min="0"
+                  />
+                  {errors.land_size && <p style={errorStyle}>{errors.land_size}</p>}
+                </div>
+                <div>
+                  <FieldLabel>Year Built</FieldLabel>
+                  <TextInput
+                    type="number"
+                    value={yearBuiltStr}
+                    onChange={e => setYearBuiltStr(e.target.value)}
+                    placeholder="e.g. 1995"
+                    min="1800"
+                    max={new Date().getFullYear()}
+                  />
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* ── SECTION 02: Financial Profile ── */}
+          <div style={cardStyle}>
+            <SectionLabel number="02" title="Financial Profile" />
+            <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+
+              <div style={{
+                display: 'flex', alignItems: 'flex-start', gap: '12px',
+                padding: '12px 16px',
+                background: 'rgba(79,52,90,0.03)',
+                borderRadius: '10px',
+                border: '1px solid rgba(79,52,90,0.07)',
+              }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#9cbfa7', marginTop: '5px', flexShrink: 0 }} />
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#8fa998', lineHeight: 1.55 }}>
+                  Used to assess affordability and mortgage stress. Your data stays in your browser and is never stored.
+                </p>
+              </div>
+
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Year Built (optional)</label>
-                <input
-                  type="number"
-                  value={yearBuiltStr}
-                  onChange={e => setYearBuiltStr(e.target.value)}
-                  placeholder="e.g. 1995"
-                  min="1800"
-                  max={new Date().getFullYear()}
-                  className="w-full px-4 py-3 border border-[#4f345a]/15 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9cbfa7] focus:border-[#9cbfa7] text-sm bg-white shadow-sm"
-                />
+                <CurrencyInput label="Annual Household Income" value={annualIncomeStr} onChange={setAnnualIncomeStr} placeholder="120,000" helpText="Combined gross income of all borrowers" required />
+                {errors.annual_income && <p style={errorStyle}>{errors.annual_income}</p>}
               </div>
+
+              <div>
+                <CurrencyInput label="Monthly Committed Costs" value={monthlyCostsStr} onChange={setMonthlyCostsStr} placeholder="2,500" helpText="Existing loan repayments, rent, credit card minimums" required />
+                {errors.monthly_costs && <p style={errorStyle}>{errors.monthly_costs}</p>}
+              </div>
+
+              <CurrencyInput label="Available Deposit" value={depositStr} onChange={setDepositStr} placeholder="200,000" helpText="Cash available — excludes stamp duty and purchase costs" />
+
             </div>
           </div>
+
+          {/* ── SUBMIT ── */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '18px 24px',
+              background: isLoading ? 'rgba(79,52,90,0.2)' : '#c9f299',
+              color: isLoading ? '#8fa998' : '#3a2444',
+              border: 'none',
+              borderRadius: '16px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '15px',
+              fontWeight: 700,
+              letterSpacing: '0.02em',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              boxShadow: isLoading ? 'none' : '0 4px 20px rgba(201,242,153,0.35)',
+            }}
+          >
+            {isLoading ? (
+              <>
+                <div style={{ width: '18px', height: '18px', border: '2px solid rgba(143,169,152,0.4)', borderTopColor: '#8fa998', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                Assessing...
+              </>
+            ) : (
+              <>
+                Analyse This Property
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </>
+            )}
+          </button>
+
         </div>
-
-        {/* Section 2: Financial Profile */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#4f345a]/15 overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#4f345a]/10 bg-[#4f345a]/5">
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-[#4f345a] text-[#c9f299] rounded-full text-xs font-bold flex items-center justify-center">2</span>
-              <h2 className="font-bold text-slate-800 text-base">Your Financial Profile</h2>
-            </div>
-          </div>
-
-          <div className="p-6 space-y-5">
-            <div className="flex items-start gap-3 p-3.5 bg-[#4f345a]/5 rounded-xl border border-[#4f345a]/10">
-              <svg className="w-4 h-4 text-[#8fa998] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                We use these to assess affordability and mortgage stress risk. Your data stays in your browser session and is not stored.
-              </p>
-            </div>
-
-            <CurrencyInput
-              label="Annual Household Income *"
-              value={annualIncomeStr}
-              onChange={setAnnualIncomeStr}
-              placeholder="120,000"
-              helpText="Combined gross income of all borrowers"
-            />
-            {errors.annual_income && <p className="text-xs text-rose-600 -mt-3">{errors.annual_income}</p>}
-
-            <CurrencyInput
-              label="Monthly Committed Costs *"
-              value={monthlyCostsStr}
-              onChange={setMonthlyCostsStr}
-              placeholder="2,500"
-              helpText="Existing loan repayments, rent, credit card minimums, etc."
-            />
-            {errors.monthly_costs && <p className="text-xs text-rose-600 -mt-3">{errors.monthly_costs}</p>}
-
-            <CurrencyInput
-              label="Available Deposit"
-              value={depositStr}
-              onChange={setDepositStr}
-              placeholder="200,000"
-              helpText="Cash available for deposit — excludes stamp duty and purchase costs"
-            />
-          </div>
-        </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-4 px-6 bg-[#c9f299] hover:bg-[#b8e07a] disabled:bg-slate-300 disabled:text-slate-500 text-[#4f345a] font-bold text-base rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group"
-        >
-          {isLoading ? (
-            <>
-              <div className="w-5 h-5 border-2 border-[#4f345a] border-t-transparent rounded-full animate-spin" />
-              Assessing...
-            </>
-          ) : (
-            <>
-              Assess This Property
-              <svg
-                className="w-5 h-5 transition-transform group-hover:translate-x-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </>
-          )}
-        </button>
       </form>
     </div>
   )

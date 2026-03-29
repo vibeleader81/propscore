@@ -2,22 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --grape: #4f345a;
+  --grape-mid: #5d4e6d;
+  --teal: #8fa998;
+  --teal-light: #9cbfa7;
+  --lime: #c9f299;
+  --lime-hover: #b5e07a;
+  --page-bg: #f7f5f9;
+}
+
 @layer base {
   body {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--page-bg);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(201,242,153,0.5); }
+  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(201,242,153,0); }
+}
+
+@keyframes progressBar {
+  from { width: 0; }
+  to   { width: var(--bar-width, 100%); }
+}
+
 @layer utilities {
-  .animation-delay-600 {
-    animation-delay: 600ms;
-  }
-  .animation-delay-1200 {
-    animation-delay: 1200ms;
-  }
-  .animation-delay-1800 {
-    animation-delay: 1800ms;
+  .font-fraunces { font-family: 'Fraunces', serif; }
+  .font-mono-dm  { font-family: 'DM Mono', monospace; }
+
+  .animate-fade-up          { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) both; }
+  .animate-fade-up-delay-1  { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.12s both; }
+  .animate-fade-up-delay-2  { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.24s both; }
+  .animate-fade-up-delay-3  { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.38s both; }
+  .animate-fade-up-delay-4  { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.52s both; }
+  .animate-fade-in          { animation: fadeIn 0.5s ease-out both; }
+
+  .dot-pulse { animation: dotPulse 2.5s ease-in-out infinite; }
+
+  /* Blueprint grid for hero */
+  .blueprint-grid {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='rgba(201%2C242%2C153%2C0.07)' stroke-width='0.5'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
   }
 }

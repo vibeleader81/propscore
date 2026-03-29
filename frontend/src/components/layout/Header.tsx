@@ -5,48 +5,142 @@ interface HeaderProps {
 
 export default function Header({ hasResult, onReset }: HeaderProps) {
   return (
-    <header className="bg-[#4f345a] sticky top-0 z-50 shadow-[0_2px_20px_rgba(79,52,90,0.4)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#c9f299] rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-              <svg className="w-5 h-5 text-[#4f345a]" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-              </svg>
-            </div>
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-extrabold text-white tracking-tight">PropScore</span>
-                <span className="hidden sm:inline text-[10px] font-bold text-[#c9f299] uppercase tracking-widest bg-[#c9f299]/10 border border-[#c9f299]/25 px-2 py-0.5 rounded-full">
-                  AU
-                </span>
-              </div>
-              <p className="text-[11px] text-[#9cbfa7] leading-none hidden sm:block mt-0.5">AI-Powered Buyers Agent</p>
-            </div>
+    <header
+      style={{
+        background: '#4f345a',
+        borderBottom: '1px solid rgba(201,242,153,0.08)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '0 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: '64px',
+        }}
+      >
+        {/* Logo mark + wordmark */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '13px' }}>
+          <div
+            style={{
+              width: '38px',
+              height: '38px',
+              background: '#c9f299',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: '0 2px 14px rgba(201,242,153,0.28)',
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="#4f345a">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            </svg>
           </div>
-
-          {/* Right */}
-          <div className="flex items-center gap-4">
-            {hasResult ? (
-              <button
-                onClick={onReset}
-                className="flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white bg-white/10 hover:bg-white/15 px-4 py-2 rounded-xl border border-white/15 hover:border-white/25 transition-all duration-200"
+          <div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '9px' }}>
+              <span
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  fontSize: '22px',
+                  fontWeight: 600,
+                  color: 'white',
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1,
+                }}
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                New Assessment
-              </button>
-            ) : (
-              <div className="hidden sm:flex items-center gap-2 text-xs text-[#9cbfa7]">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#c9f299] animate-pulse" />
-                AI analysis active
-              </div>
-            )}
+                PropScore
+              </span>
+              <span
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: '9px',
+                  fontWeight: 500,
+                  color: '#c9f299',
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  background: 'rgba(201,242,153,0.1)',
+                  border: '1px solid rgba(201,242,153,0.2)',
+                  padding: '3px 8px',
+                  borderRadius: '100px',
+                }}
+              >
+                AU
+              </span>
+            </div>
+            <div
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '10px',
+                color: '#8fa998',
+                letterSpacing: '0.07em',
+                marginTop: '3px',
+                textTransform: 'uppercase',
+              }}
+            >
+              Property Intelligence
+            </div>
           </div>
+        </div>
 
+        {/* Right side */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {hasResult ? (
+            <button
+              onClick={onReset}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 500,
+                color: 'rgba(255,255,255,0.65)',
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                padding: '9px 18px',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                letterSpacing: '0.01em',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              New Assessment
+            </button>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '10px',
+                color: '#8fa998',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              <div
+                className="dot-pulse"
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: '#c9f299',
+                }}
+              />
+              Live
+            </div>
+          )}
         </div>
       </div>
     </header>
