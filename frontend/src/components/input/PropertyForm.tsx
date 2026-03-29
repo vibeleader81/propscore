@@ -31,11 +31,11 @@ function NumberSelector({
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
-      <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+      <div className="flex items-center border border-[#4f345a]/15 rounded-xl overflow-hidden bg-white shadow-sm">
         <button
           type="button"
           onClick={() => onChange(Math.max(min, value - 1))}
-          className="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors font-bold text-lg"
+          className="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-[#4f345a]/5 hover:text-[#4f345a] transition-colors font-bold text-lg"
         >
           −
         </button>
@@ -45,7 +45,7 @@ function NumberSelector({
         <button
           type="button"
           onClick={() => onChange(Math.min(max, value + 1))}
-          className="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors font-bold text-lg"
+          className="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-[#4f345a]/5 hover:text-[#4f345a] transition-colors font-bold text-lg"
         >
           +
         </button>
@@ -78,7 +78,7 @@ function CurrencyInput({
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
       <div className="relative">
-        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-medium text-sm pointer-events-none">
+        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[#8fa998] font-medium text-sm pointer-events-none">
           $
         </span>
         <input
@@ -87,7 +87,7 @@ function CurrencyInput({
           value={display}
           onChange={handleChange}
           placeholder={placeholder}
-          className="w-full pl-7 pr-4 py-3 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-sm bg-white shadow-sm"
+          className="w-full pl-7 pr-4 py-3 border border-[#4f345a]/15 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9cbfa7] focus:border-[#9cbfa7] transition-shadow text-sm bg-white shadow-sm"
         />
       </div>
       {helpText && <p className="mt-1 text-xs text-slate-400">{helpText}</p>}
@@ -170,23 +170,13 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const showLandSize = propertyType === 'house' || propertyType === 'townhouse'
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
-      {/* Hero */}
-      <div className="text-center mb-10">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">
-          Property Assessment
-        </h1>
-        <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto">
-          Enter the details below and our AI will score this property across 5 key investment pillars.
-        </p>
-      </div>
-
+    <div className="max-w-3xl mx-auto px-4 py-8 sm:py-10">
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
         {/* Section 1: Property Details */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#4f345a]/15 overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#4f345a]/10 bg-[#4f345a]/5">
             <div className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-blue-600 text-white rounded-full text-xs font-bold flex items-center justify-center">1</span>
+              <span className="w-6 h-6 bg-[#4f345a] text-[#c9f299] rounded-full text-xs font-bold flex items-center justify-center">1</span>
               <h2 className="font-bold text-slate-800 text-base">Property Details</h2>
             </div>
           </div>
@@ -207,7 +197,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
               {/* Domain autofill card */}
               {isLookingUp && (
                 <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                  <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3 h-3 border border-[#9cbfa7] border-t-transparent rounded-full animate-spin" />
                   Looking up on Domain.com.au...
                 </div>
               )}
@@ -262,8 +252,8 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                     onClick={() => setPropertyType(pt.value)}
                     className={`py-2.5 px-2 rounded-xl text-sm font-medium border transition-all duration-150 ${
                       propertyType === pt.value
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600'
+                        ? 'bg-[#4f345a] text-white border-[#4f345a]'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-[#8fa998]'
                     }`}
                   >
                     {pt.label}
@@ -301,7 +291,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                   onChange={e => setLandSizeStr(e.target.value)}
                   placeholder={showLandSize ? '450' : '0 (not applicable)'}
                   min="0"
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white shadow-sm"
+                  className="w-full px-4 py-3 border border-[#4f345a]/15 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9cbfa7] focus:border-[#9cbfa7] text-sm bg-white shadow-sm"
                 />
                 {errors.land_size && <p className="text-xs text-rose-600 mt-1">{errors.land_size}</p>}
               </div>
@@ -314,7 +304,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                   placeholder="e.g. 1995"
                   min="1800"
                   max={new Date().getFullYear()}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white shadow-sm"
+                  className="w-full px-4 py-3 border border-[#4f345a]/15 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9cbfa7] focus:border-[#9cbfa7] text-sm bg-white shadow-sm"
                 />
               </div>
             </div>
@@ -322,20 +312,20 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
         </div>
 
         {/* Section 2: Financial Profile */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#4f345a]/15 overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#4f345a]/10 bg-[#4f345a]/5">
             <div className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-blue-600 text-white rounded-full text-xs font-bold flex items-center justify-center">2</span>
+              <span className="w-6 h-6 bg-[#4f345a] text-[#c9f299] rounded-full text-xs font-bold flex items-center justify-center">2</span>
               <h2 className="font-bold text-slate-800 text-base">Your Financial Profile</h2>
             </div>
           </div>
 
           <div className="p-6 space-y-5">
-            <div className="flex items-start gap-3 p-3.5 bg-blue-50 rounded-xl border border-blue-100">
-              <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-start gap-3 p-3.5 bg-[#4f345a]/5 rounded-xl border border-[#4f345a]/10">
+              <svg className="w-4 h-4 text-[#8fa998] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
-              <p className="text-xs text-blue-700 leading-relaxed">
+              <p className="text-xs text-slate-600 leading-relaxed">
                 We use these to assess affordability and mortgage stress risk. Your data stays in your browser session and is not stored.
               </p>
             </div>
@@ -372,11 +362,11 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-400 disabled:to-slate-400 text-white font-bold text-base rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group"
+          className="w-full py-4 px-6 bg-[#c9f299] hover:bg-[#b8e07a] disabled:bg-slate-300 disabled:text-slate-500 text-[#4f345a] font-bold text-base rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group"
         >
           {isLoading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-[#4f345a] border-t-transparent rounded-full animate-spin" />
               Assessing...
             </>
           ) : (

@@ -63,19 +63,19 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
     <div className="max-w-lg mx-auto px-4 py-16">
       {/* Property being assessed */}
       <div className="text-center mb-10">
-        <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">Assessing</p>
-        <p className="text-sm font-semibold text-slate-700 truncate px-4">{address}</p>
+        <p className="text-xs text-[#8fa998] uppercase tracking-widest mb-1">Assessing</p>
+        <p className="text-sm font-semibold text-[#4f345a] truncate px-4">{address}</p>
       </div>
 
       {/* Animated stage icon */}
       <div className="flex justify-center mb-5">
-        <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl shadow-sm animate-pulse">
+        <div className="w-16 h-16 bg-[#4f345a]/8 rounded-2xl flex items-center justify-center text-3xl shadow-sm animate-pulse">
           {stage.emoji}
         </div>
       </div>
 
       {/* Current stage label */}
-      <p className="text-center text-sm font-medium text-slate-700 mb-5">
+      <p className="text-center text-sm font-medium text-[#4f345a] mb-5">
         {stage.label}<span className="animate-[ellipsis_1.5s_steps(4,end)_infinite]">...</span>
       </p>
 
@@ -85,13 +85,13 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
           className="h-full rounded-full transition-all duration-300 ease-linear"
           style={{
             width: `${pct}%`,
-            background: 'linear-gradient(90deg, #3b82f6, #6366f1)',
+            background: 'linear-gradient(90deg, #4f345a, #5d4e6d)',
           }}
         />
       </div>
 
       {/* Percentage + step count */}
-      <div className="flex justify-between text-xs text-slate-400 mb-8">
+      <div className="flex justify-between text-xs text-[#8fa998] mb-8">
         <span>{Math.round(pct)}% complete</span>
         <span>Step {Math.min(stageIdx + 1, STAGES.length)} of {STAGES.length}</span>
       </div>
@@ -104,9 +104,9 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
             title={s.label}
             className={`h-1.5 rounded-full transition-all duration-500 ${
               i < stageIdx
-                ? 'w-4 bg-blue-500'
+                ? 'w-4 bg-[#9cbfa7]'
                 : i === stageIdx
-                ? 'w-6 bg-blue-600'
+                ? 'w-6 bg-[#4f345a]'
                 : 'w-1.5 bg-slate-200'
             }`}
           />
@@ -115,15 +115,15 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
 
       {/* AI stage notice */}
       {isAIStage && (
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-5 text-center">
-          <p className="text-sm font-semibold text-blue-800 mb-1">
+        <div className="bg-[#4f345a]/5 border border-[#4f345a]/15 rounded-2xl p-5 text-center">
+          <p className="text-sm font-semibold text-[#4f345a] mb-1">
             🤖 AI Expert Analysis Running
           </p>
-          <p className="text-xs text-blue-600 leading-relaxed">
+          <p className="text-xs text-[#5d4e6d] leading-relaxed">
             Claude is evaluating 10 property criteria including orientation, noise, zoning,
             flood risk, neighbourhood quality, and capital growth signals.
           </p>
-          <p className="text-xs text-blue-500 mt-2 font-medium">
+          <p className="text-xs text-[#8fa998] mt-2 font-medium">
             This takes 15–25 seconds — your detailed expert report is worth the wait.
           </p>
         </div>
@@ -134,7 +134,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
         <div className="mt-6 space-y-1.5">
           {STAGES.slice(0, stageIdx).map((s, i) => (
             <div key={i} className="flex items-center gap-2 text-xs text-slate-400">
-              <svg className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-3.5 h-3.5 text-[#9cbfa7] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               <span>{s.label}</span>
