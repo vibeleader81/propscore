@@ -1,5 +1,5 @@
 import type { AssessmentResponse } from '../../types'
-import { getBandColor, formatCurrency } from '../../utils/formatters'
+import { formatCurrency } from '../../utils/formatters'
 import ScoreGauge from './ScoreGauge'
 import BuyersAgentSummary from './BuyersAgentSummary'
 import FlagsPanel from './FlagsPanel'

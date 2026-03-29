@@ -1,5 +1,5 @@
 import type { NearbyPOIs as NearbyPOIsType, NearbyPOI } from '../../types'
-import { formatDistance, getDistanceColor } from '../../utils/formatters'
+import { formatDistance } from '../../utils/formatters'
 
 interface NearbyPOIsProps {
   pois: NearbyPOIsType
