@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import type { AssessmentRequest, PropertyType } from '../../types'
 import AddressSearch from './AddressSearch'
-import { lookupProperty, type DomainPropertyData } from '../../api/client'
+import { lookupProperty, lookupByListingUrl, type DomainPropertyData } from '../../api/client'
 
 interface PropertyFormProps {
   onSubmit: (data: AssessmentRequest) => void
@@ -175,6 +175,8 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const [address, setAddress] = useState('')
   const [domainListingUrl, setDomainListingUrl] = useState('')
   const [urlValid, setUrlValid] = useState<boolean | null>(null)
+  const [isLookingUpUrl, setIsLookingUpUrl] = useState(false)
+  const [urlAutoFilled, setUrlAutoFilled] = useState(false)
   const [propertyType, setPropertyType] = useState<PropertyType>('house')
   const [priceStr, setPriceStr] = useState('')
   const [bedrooms, setBedrooms] = useState(3)
@@ -455,43 +457,77 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
 
               {/* Domain listing URL — optional, enriches AI analysis */}
               <div>
-                <FieldLabel>Domain Listing URL <span style={{ fontWeight: 400, color: '#6daedb', textTransform: 'none', letterSpacing: 0, fontSize: '11px' }}>(optional — unlocks richer AI analysis)</span></FieldLabel>
+                <FieldLabel>
+                  Domain Listing URL{' '}
+                  <span style={{ fontWeight: 400, color: '#6daedb', textTransform: 'none', letterSpacing: 0, fontSize: '11px' }}>
+                    (optional — auto-fills form + enriches AI)
+                  </span>
+                </FieldLabel>
                 <div style={{ position: 'relative' }}>
-                  <TextInput
+                  <input
                     type="url"
                     value={domainListingUrl}
-                    onChange={e => {
+                    onChange={async e => {
                       const val = e.target.value
                       setDomainListingUrl(val)
+                      setUrlAutoFilled(false)
                       if (!val) { setUrlValid(null); return }
                       const isDomain = /domain\.com\.au\/.+-\d{7,12}/.test(val)
                       setUrlValid(isDomain)
+                      if (isDomain) {
+                        setIsLookingUpUrl(true)
+                        try {
+                          const data = await lookupByListingUrl(val)
+                          if (data.found) {
+                            applyDomainData(data)
+                            setUrlAutoFilled(true)
+                          }
+                        } catch { /* silent */ }
+                        finally { setIsLookingUpUrl(false) }
+                      }
                     }}
                     placeholder="https://www.domain.com.au/3-example-st-suburb-nsw-2000-2016839485"
+                    style={{
+                      ...inputStyle,
+                      paddingRight: urlValid !== null || isLookingUpUrl ? '130px' : '14px',
+                    }}
                   />
-                  {urlValid === true && (
-                    <span style={{
-                      position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                      display: 'flex', alignItems: 'center', gap: '4px',
-                      fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#059669',
-                    }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      Valid listing URL
-                    </span>
-                  )}
-                  {urlValid === false && domainListingUrl && (
-                    <span style={{
-                      position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                      fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#e53e3e',
-                    }}>
-                      Paste a Domain listing link
-                    </span>
-                  )}
+
+                  {/* Status badge — right side of input, never overlaps text */}
+                  <span style={{
+                    position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    pointerEvents: 'none',
+                  }}>
+                    {isLookingUpUrl && (
+                      <>
+                        <div style={{ width: '10px', height: '10px', border: '1.5px solid #5ba3d0', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', whiteSpace: 'nowrap' }}>Looking up…</span>
+                      </>
+                    )}
+                    {!isLookingUpUrl && urlAutoFilled && (
+                      <>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#059669', whiteSpace: 'nowrap' }}>Form filled</span>
+                      </>
+                    )}
+                    {!isLookingUpUrl && !urlAutoFilled && urlValid === true && (
+                      <>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5ba3d0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#5ba3d0', whiteSpace: 'nowrap' }}>Valid URL</span>
+                      </>
+                    )}
+                    {!isLookingUpUrl && urlValid === false && domainListingUrl && (
+                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#e53e3e', whiteSpace: 'nowrap' }}>Not a listing URL</span>
+                    )}
+                  </span>
                 </div>
                 <p style={{ marginTop: '5px', fontFamily: "'Inter', sans-serif", fontSize: '11px', color: 'rgba(109,174,219,0.7)', lineHeight: 1.5 }}>
-                  Paste the Domain.com.au property listing URL to feed the agent description, room details and features directly into the AI analysis.
+                  Paste a Domain listing URL — the form will auto-fill and the agent description feeds directly into the AI analysis.
                 </p>
               </div>
 

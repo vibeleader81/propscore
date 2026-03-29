@@ -64,3 +64,17 @@ export async function lookupProperty(address: string): Promise<DomainPropertyDat
     return { found: false }
   }
 }
+
+export async function lookupByListingUrl(url: string): Promise<DomainPropertyData> {
+  try {
+    const response = await fetch('/api/listing-lookup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
+    if (!response.ok) return { found: false }
+    return response.json()
+  } catch {
+    return { found: false }
+  }
+}

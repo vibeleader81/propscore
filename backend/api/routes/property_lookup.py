@@ -10,6 +10,55 @@ class PropertyLookupRequest(BaseModel):
     address: str
 
 
+class ListingUrlLookupRequest(BaseModel):
+    url: str
+
+
+@router.post("/listing-lookup")
+async def listing_url_lookup(request: ListingUrlLookupRequest) -> dict:
+    """
+    Look up a Domain.com.au listing by URL and return autofill-ready data.
+    Extracts the listing ID from the URL, fetches full listing details,
+    and maps them to the same shape as /property-lookup.
+    """
+    if not settings.DOMAIN_CLIENT_ID or not settings.DOMAIN_CLIENT_SECRET:
+        return {"found": False, "reason": "Domain API not configured"}
+
+    listing_id = domain_api.extract_listing_id_from_url(request.url)
+    if not listing_id:
+        return {"found": False, "reason": "Could not extract a listing ID from this URL"}
+
+    try:
+        content = await domain_api.fetch_listing_content(
+            listing_id=listing_id,
+            client_id=settings.DOMAIN_CLIENT_ID,
+            client_secret=settings.DOMAIN_CLIENT_SECRET,
+        )
+    except Exception:
+        return {"found": False, "reason": "Failed to fetch listing from Domain API"}
+
+    if not content:
+        return {"found": False, "reason": "Listing not found on Domain.com.au"}
+
+    # Map to the same autofill shape as /property-lookup
+    return {
+        "found": True,
+        "property_id": listing_id,
+        "headline": content.get("headline", ""),
+        "property_type": content.get("property_type"),
+        "bedrooms": content.get("bedrooms"),
+        "bathrooms": content.get("bathrooms"),
+        "parking": content.get("parking"),
+        "land_size_sqm": content.get("land_area"),
+        "building_area_sqm": content.get("building_area"),
+        "year_built": None,          # not in listing endpoint
+        "features": content.get("features", []),
+        "display_price": content.get("display_price", ""),
+        "listing_url": content.get("listing_url", ""),
+        "price": None,               # display_price is a string; user fills purchase price
+    }
+
+
 @router.post("/property-lookup")
 async def property_lookup(request: PropertyLookupRequest) -> dict:
     """
