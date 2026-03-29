@@ -6,6 +6,7 @@ from models.response import (
     AssessmentResponse, AlternativeSuburb, NearbyPOI,
     WalkabilityData, RiskProfile, DomainMarketData,
     AIAnalysis, AIFlag, AIDimensionScore, AIDimensionScores,
+    PropertyListing,
 )
 from services import google_maps, suburb_data, scoring, overpass, domain_api, risk_data
 from services import ai_analysis
@@ -82,11 +83,26 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         else _noop()
     )
 
-    walkability_raw, risk_raw, domain_perf_raw, domain_intel_raw = await asyncio.gather(
+    alt_listings_task = (
+        domain_api.get_alternative_listings(
+            lat=lat,
+            lng=lng,
+            property_type=request.property_type,
+            bedrooms=request.bedrooms,
+            price=request.price,
+            client_id=settings.DOMAIN_CLIENT_ID,
+            client_secret=settings.DOMAIN_CLIENT_SECRET,
+        )
+        if settings.DOMAIN_CLIENT_ID and settings.DOMAIN_CLIENT_SECRET
+        else _noop()
+    )
+
+    walkability_raw, risk_raw, domain_perf_raw, domain_intel_raw, alt_listings_raw = await asyncio.gather(
         overpass.get_walkability_data(lat, lng),
         risk_data.get_risk_profile(lat, lng, state),
         domain_perf_task,
         domain_intel_task,
+        alt_listings_task,
         return_exceptions=False,
     )
 
@@ -175,7 +191,15 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
                 data_available=True,
             )
 
-    # Step 7: Alternative suburbs
+    # Step 7a: Real Domain alternative listings
+    alt_listings: list[PropertyListing] = []
+    for item in (alt_listings_raw or []):
+        try:
+            alt_listings.append(PropertyListing(**item))
+        except Exception:
+            continue
+
+    # Step 7b: Alternative suburbs (fallback when no live listings)
     property_type = request.property_type
     nearby_suburbs = suburb_data.get_nearby_suburbs(lat, lng, max_distance_km=30)
 
@@ -325,4 +349,5 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         deposit=request.deposit,
         lvr_pct=round((request.price - request.deposit) / request.price * 100, 1) if request.price > 0 else 100.0,
         lmi_required=request.deposit < request.price * 0.2,
+        alternative_listings=alt_listings,
     )

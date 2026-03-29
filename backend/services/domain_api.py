@@ -408,6 +408,119 @@ async def get_property_intelligence(
 
 
 # ---------------------------------------------------------------------------
+# Alternative listings search (OAuth2 Bearer — active For Sale listings)
+# ---------------------------------------------------------------------------
+
+
+async def _search_for_sale_listings(
+    lat: float,
+    lng: float,
+    property_type: str,
+    bedrooms: int,
+    max_price: float,
+    token: str,
+    radius_m: int = 20000,
+    page_size: int = 8,
+) -> list[dict]:
+    """Find active for-sale listings within radius with similar specs."""
+    domain_types = _DOMAIN_TYPE_MAP.get(property_type.lower(), ["House"])
+    body = {
+        "geoWindow": {
+            "circle": {
+                "center": {"lat": lat, "lon": lng},
+                "radiusInMeters": radius_m,
+            }
+        },
+        "propertyTypes": domain_types,
+        "bedrooms": {"minimum": max(1, bedrooms - 1), "maximum": bedrooms + 1},
+        "listingType": "Sale",
+        "price": {"maximum": int(max_price)},
+        "pageSize": page_size,
+        "sort": {"sortKey": "DateUpdated", "direction": "Descending"},
+    }
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(
+                f"{DOMAIN_BASE_URL}/listings/residential/_search",
+                json=body,
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            if not resp.is_success:
+                return []
+            data = resp.json()
+            return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def _parse_listing(wrapper: dict) -> Optional[dict]:
+    listing = wrapper.get("listing", wrapper)
+    details = listing.get("propertyDetails", {})
+    pricing = listing.get("pricingDetails", {})
+    media = listing.get("media", [])
+
+    address = (
+        details.get("displayableAddress")
+        or f"{details.get('streetAddress', '')} {details.get('suburb', '')}".strip()
+    )
+    listing_id = listing.get("id")
+    if not address or not listing_id:
+        return None
+
+    price = pricing.get("price") or pricing.get("from")
+    photos = [
+        m.get("url") for m in media
+        if m.get("category") == "Image" and m.get("url")
+    ][:3]
+
+    return {
+        "listing_id": str(listing_id),
+        "address": address,
+        "suburb": details.get("suburb", ""),
+        "state": details.get("state", ""),
+        "postcode": details.get("postcode", ""),
+        "price": int(price) if price else None,
+        "display_price": pricing.get("displayPrice", ""),
+        "bedrooms": details.get("bedrooms"),
+        "bathrooms": details.get("bathrooms"),
+        "parking": details.get("carspaces"),
+        "land_size_sqm": details.get("landArea"),
+        "property_type": _map_property_type(details.get("propertyType") or ""),
+        "photos": photos,
+        "listing_url": f"https://www.domain.com.au/{listing_id}",
+        "headline": listing.get("headline", ""),
+    }
+
+
+async def get_alternative_listings(
+    lat: float,
+    lng: float,
+    property_type: str,
+    bedrooms: int,
+    price: float,
+    client_id: str,
+    client_secret: str,
+) -> list[dict]:
+    """
+    Search Domain for active for-sale listings as alternatives to the assessed property.
+    Returns [] gracefully on any error.
+    """
+    try:
+        token = await _get_oauth_token(client_id, client_secret)
+    except Exception:
+        return []
+
+    raw = await _search_for_sale_listings(
+        lat, lng, property_type, bedrooms, price * 1.15, token
+    )
+    listings = [p for p in (_parse_listing(w) for w in raw) if p]
+    return listings[:5]
+
+
+# ---------------------------------------------------------------------------
 # Legacy X-Api-Key functions (suburb stats + fallback listing search)
 # ---------------------------------------------------------------------------
 

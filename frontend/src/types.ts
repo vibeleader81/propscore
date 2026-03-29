@@ -26,6 +26,24 @@ export interface NearbyPOI {
   type: string
 }
 
+export interface PropertyListing {
+  listing_id: string
+  address: string
+  suburb: string
+  state: string
+  postcode: string
+  price?: number
+  display_price: string
+  bedrooms?: number
+  bathrooms?: number
+  parking?: number
+  land_size_sqm?: number
+  property_type: string
+  photos: string[]
+  listing_url: string
+  headline: string
+}
+
 export interface AlternativeSuburb {
   suburb: string
   state: string
@@ -105,6 +123,7 @@ export interface AssessmentResponse {
   red_flags: string[]
   green_flags: string[]
   alternatives: AlternativeSuburb[]
+  alternative_listings?: PropertyListing[]
   monthly_repayment: number
   borrowing_capacity: number
   deposit: number

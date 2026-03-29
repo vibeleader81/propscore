@@ -26,6 +26,24 @@ class AlternativeSuburb(BaseModel):
     score_delta: float
 
 
+class PropertyListing(BaseModel):
+    listing_id: str
+    address: str
+    suburb: str
+    state: str
+    postcode: str
+    price: Optional[float] = None
+    display_price: str = ""
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[float] = None
+    parking: Optional[int] = None
+    land_size_sqm: Optional[float] = None
+    property_type: str = ""
+    photos: list[str] = []
+    listing_url: str = ""
+    headline: str = ""
+
+
 class WalkabilityData(BaseModel):
     counts: dict[str, int] = {}
     total: int = 0
@@ -100,3 +118,4 @@ class AssessmentResponse(BaseModel):
     deposit: float = 0
     lvr_pct: float = 0
     lmi_required: bool = False
+    alternative_listings: list[PropertyListing] = []
