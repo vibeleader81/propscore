@@ -29,6 +29,7 @@ export async function geocodeAddress(query: string): Promise<GeocodeResult[]> {
 
 export interface DomainPropertyData {
   found: boolean
+  property_id?: string
   domain_listing_id?: string
   headline?: string
   property_type?: string
@@ -41,6 +42,10 @@ export interface DomainPropertyData {
   features?: string[]
   price?: number
   display_price?: string
+  estimated_value_low?: number
+  estimated_value_high?: number
+  last_sold_price?: number
+  last_sold_date?: string
   photos?: string[]
   listing_url?: string
   reason?: string

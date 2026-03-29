@@ -13,7 +13,14 @@ class Settings(BaseSettings):
     GOOGLE_MAPS_API_KEY: str
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
     MORTGAGE_RATE: float = 0.065
+
+    # Domain API — OAuth2 client credentials (preferred, works for any property)
+    DOMAIN_CLIENT_ID: Optional[str] = None
+    DOMAIN_CLIENT_SECRET: Optional[str] = None
+
+    # Domain API — legacy X-Api-Key (fallback, only for suburb performance stats)
     DOMAIN_API_KEY: Optional[str] = None
+
     ANTHROPIC_API_KEY: Optional[str] = None
 
 

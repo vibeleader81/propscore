@@ -241,6 +241,17 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
 
   const showLandSize = propertyType === 'house' || propertyType === 'townhouse'
 
+  const specPillStyle: React.CSSProperties = {
+    fontFamily: "'DM Mono', monospace",
+    fontSize: '10px',
+    color: '#5a8a6a',
+    background: 'rgba(90,138,106,0.1)',
+    border: '1px solid rgba(90,138,106,0.2)',
+    borderRadius: '6px',
+    padding: '3px 8px',
+    whiteSpace: 'nowrap' as const,
+  }
+
   const cardStyle: React.CSSProperties = {
     background: 'white',
     borderRadius: '20px',
@@ -285,56 +296,117 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                 {domainData?.found && !isLookingUp && (
                   <div style={{
                     marginTop: '12px',
-                    background: 'rgba(156,191,167,0.08)',
-                    border: '1px solid rgba(156,191,167,0.35)',
-                    borderRadius: '12px',
-                    padding: '14px 16px',
+                    background: 'rgba(156,191,167,0.06)',
+                    border: '1px solid rgba(156,191,167,0.3)',
+                    borderRadius: '14px',
+                    overflow: 'hidden',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#5a8a6a', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '6px' }}>
-                          ✓ Found on Domain.com.au
-                        </div>
-                        {domainData.headline && (
-                          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#2d4a35', marginBottom: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {domainData.headline}
-                          </p>
+                    {/* Header row */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+                      padding: '10px 14px',
+                      background: 'rgba(156,191,167,0.1)',
+                      borderBottom: '1px solid rgba(156,191,167,0.2)',
+                    }}>
+                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#5a8a6a', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                        ◈ Found on Domain.com.au
+                      </span>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {domainData.listing_url && (
+                          <a href={domainData.listing_url} target="_blank" rel="noopener noreferrer"
+                            style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', letterSpacing: '0.06em', textDecoration: 'none' }}>
+                            View →
+                          </a>
                         )}
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#5a8a6a' }}>
-                          {domainData.bedrooms != null && <span>🛏 {domainData.bedrooms}</span>}
-                          {domainData.bathrooms != null && <span>🚿 {domainData.bathrooms}</span>}
-                          {domainData.parking != null && <span>🚗 {domainData.parking}</span>}
-                          {domainData.land_size_sqm != null && <span>📐 {Math.round(domainData.land_size_sqm)}m²</span>}
-                          {domainData.display_price && <span>💰 {domainData.display_price}</span>}
-                        </div>
+                        <button
+                          type="button"
+                          onClick={applyDomainAutofill}
+                          style={{
+                            padding: '6px 12px',
+                            background: '#4f345a',
+                            color: '#c9f299',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontFamily: "'DM Mono', monospace",
+                            fontSize: '9px',
+                            fontWeight: 500,
+                            letterSpacing: '0.1em',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Autofill
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={applyDomainAutofill}
-                        style={{
-                          flexShrink: 0,
-                          padding: '8px 14px',
-                          background: '#4f345a',
-                          color: '#c9f299',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontFamily: "'DM Mono', monospace",
-                          fontSize: '10px',
-                          fontWeight: 500,
-                          letterSpacing: '0.08em',
-                          textTransform: 'uppercase',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Autofill
-                      </button>
                     </div>
-                    {domainData.listing_url && (
-                      <a href={domainData.listing_url} target="_blank" rel="noopener noreferrer"
-                        style={{ display: 'block', marginTop: '8px', fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#5a8a6a', letterSpacing: '0.04em', textDecoration: 'none' }}>
-                        View on Domain.com.au →
-                      </a>
-                    )}
+
+                    {/* Property specs */}
+                    <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {domainData.headline && (
+                        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 600, color: '#2d4a35', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {domainData.headline}
+                        </p>
+                      )}
+
+                      {/* Specs row */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {domainData.bedrooms != null && (
+                          <span style={specPillStyle}>🛏 {domainData.bedrooms} bed</span>
+                        )}
+                        {domainData.bathrooms != null && (
+                          <span style={specPillStyle}>🚿 {domainData.bathrooms} bath</span>
+                        )}
+                        {domainData.parking != null && (
+                          <span style={specPillStyle}>🚗 {domainData.parking} car</span>
+                        )}
+                        {domainData.land_size_sqm != null && (
+                          <span style={specPillStyle}>📐 {Math.round(domainData.land_size_sqm)}m²</span>
+                        )}
+                        {domainData.year_built != null && (
+                          <span style={specPillStyle}>🏗 {domainData.year_built}</span>
+                        )}
+                      </div>
+
+                      {/* Price intelligence */}
+                      {(domainData.display_price || domainData.last_sold_price) && (
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: domainData.display_price && domainData.last_sold_price ? '1fr 1fr' : '1fr',
+                          gap: '8px',
+                        }}>
+                          {domainData.display_price && (
+                            <div style={{ background: 'rgba(79,52,90,0.06)', borderRadius: '8px', padding: '8px 10px' }}>
+                              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
+                                AVM Estimate
+                              </div>
+                              <div style={{ fontFamily: "'Fraunces', serif", fontSize: '14px', fontWeight: 700, color: '#4f345a' }}>
+                                {domainData.display_price}
+                              </div>
+                              {domainData.estimated_value_low != null && domainData.estimated_value_high != null && (
+                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', marginTop: '2px' }}>
+                                  ${(domainData.estimated_value_low / 1000).toFixed(0)}k – ${(domainData.estimated_value_high / 1000).toFixed(0)}k range
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {domainData.last_sold_price != null && (
+                            <div style={{ background: 'rgba(79,52,90,0.06)', borderRadius: '8px', padding: '8px 10px' }}>
+                              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
+                                Last Sold
+                              </div>
+                              <div style={{ fontFamily: "'Fraunces', serif", fontSize: '14px', fontWeight: 700, color: '#4f345a' }}>
+                                ${domainData.last_sold_price.toLocaleString('en-AU')}
+                              </div>
+                              {domainData.last_sold_date && (
+                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', marginTop: '2px' }}>
+                                  {new Date(domainData.last_sold_date).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

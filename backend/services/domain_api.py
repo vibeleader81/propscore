@@ -1,20 +1,217 @@
 """
-Domain.com.au API client for suburb performance and nearby listing data.
+Domain.com.au API client.
 
-Requires a Domain API key (free tier: 500 calls/day).
-Base URL: https://api.domain.com.au/v1
-Auth header: X-Api-Key
+Two authentication modes:
+  1. OAuth2 client credentials (DOMAIN_CLIENT_ID + DOMAIN_CLIENT_SECRET)
+     Uses the properties/_suggest → /properties/{id} flow.
+     Works for any property — not just currently listed ones.
+     Token is cached in-process and reused until near expiry.
+
+  2. Legacy X-Api-Key (DOMAIN_API_KEY)
+     Used for suburb performance stats and as a fallback for property lookup.
+     Only finds properties currently listed for sale / recently sold.
 
 All functions degrade gracefully — return None or [] on any error.
 """
 
 from __future__ import annotations
 
-import httpx
+import asyncio
+import time
 from typing import Optional
 
-DOMAIN_BASE_URL = "https://api.domain.com.au/v1"
+import httpx
 
+DOMAIN_BASE_URL = "https://api.domain.com.au/v1"
+DOMAIN_AUTH_URL = "https://auth.domain.com.au/v1/connect/token"
+
+# ---------------------------------------------------------------------------
+# OAuth2 token cache (module-level, shared across requests)
+# ---------------------------------------------------------------------------
+
+_token_cache: dict = {"token": None, "expires_at": 0.0}
+
+
+async def _get_oauth_token(client_id: str, client_secret: str) -> str:
+    """
+    Fetch an OAuth2 access token using client credentials flow.
+    Caches the token and reuses it until 60 seconds before expiry.
+    Raises on auth failure — callers should not swallow this.
+    """
+    now = time.time()
+    if _token_cache["token"] and _token_cache["expires_at"] - now > 60:
+        return _token_cache["token"]  # type: ignore[return-value]
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.post(
+            DOMAIN_AUTH_URL,
+            data={
+                "grant_type": "client_credentials",
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "scope": "api_listings_read api_properties_read",
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        if not resp.is_success:
+            raise RuntimeError(
+                f"Domain OAuth2 authentication failed: {resp.status_code} — {resp.text}"
+            )
+        data = resp.json()
+        _token_cache["token"] = data["access_token"]
+        _token_cache["expires_at"] = now + data["expires_in"]
+        return _token_cache["token"]  # type: ignore[return-value]
+
+
+# ---------------------------------------------------------------------------
+# OAuth2-based property lookup
+# ---------------------------------------------------------------------------
+
+async def _suggest_property_id(address: str, token: str) -> Optional[str]:
+    """Resolve an address string to a Domain propertyId via the suggest endpoint."""
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                f"{DOMAIN_BASE_URL}/properties/_suggest",
+                params={"terms": address, "channel": "All"},
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            if not resp.is_success:
+                return None
+            results = resp.json()
+            if not isinstance(results, list) or not results:
+                return None
+            best = max(results, key=lambda x: x.get("relativeScore", 0))
+            if best.get("relativeScore", 0) < 50:
+                return None
+            return best.get("id")
+    except Exception:
+        return None
+
+
+async def _fetch_property_details(property_id: str, token: str) -> Optional[dict]:
+    """Fetch full property details for a known propertyId."""
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                f"{DOMAIN_BASE_URL}/properties/{property_id}",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            return resp.json() if resp.is_success else None
+    except Exception:
+        return None
+
+
+async def _fetch_price_details(property_id: str, token: str) -> Optional[dict]:
+    """
+    Fetch price history and AVM estimate.
+    Returns None gracefully on 403 (free tier restriction) or any other error.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                f"{DOMAIN_BASE_URL}/properties/{property_id}/priceDetails",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            return resp.json() if resp.is_success else None
+    except Exception:
+        return None
+
+
+def _map_property_type(raw_type: str) -> str:
+    t = raw_type.lower()
+    if any(k in t for k in ["house", "terrace", "semi", "duplex", "cottage"]):
+        return "house"
+    if any(k in t for k in ["townhouse", "villa", "row"]):
+        return "townhouse"
+    if any(k in t for k in ["apartment", "unit", "flat", "studio"]):
+        return "unit"
+    return "house"
+
+
+def _build_lookup_result(property_id: str, details: Optional[dict], price: Optional[dict]) -> dict:
+    result: dict = {"found": True, "property_id": property_id}
+
+    if details:
+        addr = details.get("address") or {}
+        street = " ".join(filter(None, [addr.get("streetNumber"), addr.get("streetName"), addr.get("streetType")]))
+        full_address = ", ".join(filter(None, [street, addr.get("suburb"), f"{addr.get('state', '')} {addr.get('postcode', '')}".strip()]))
+
+        photos: list[str] = []
+        for p in (details.get("photos") or [])[:3]:
+            url = p.get("url") or p.get("fullUrl") or p.get("thumbnailUrl")
+            if url:
+                photos.append(url)
+
+        result.update({
+            "headline": full_address,
+            "property_type": _map_property_type(details.get("propertyType") or ""),
+            "bedrooms": details.get("bedrooms"),
+            "bathrooms": details.get("bathrooms"),
+            "parking": details.get("carSpaces") or details.get("carspaces"),
+            "land_size_sqm": details.get("landArea"),
+            "building_area_sqm": details.get("buildingArea"),
+            "year_built": details.get("yearBuilt"),
+            "features": details.get("features") or [],
+            "photos": photos,
+            "listing_url": f"https://www.domain.com.au/{property_id}",
+        })
+
+    if price:
+        est = price.get("estimatedValue") or (price.get("avm") or {}).get("value")
+        est_low = price.get("estimatedValueLow") or (price.get("avm") or {}).get("low")
+        est_high = price.get("estimatedValueHigh") or (price.get("avm") or {}).get("high")
+
+        # Derive last sold from dedicated fields or price history
+        last_sold_price = price.get("lastSoldPrice")
+        last_sold_date = price.get("lastSoldDate")
+        history = price.get("priceHistory") or []
+        if not last_sold_price:
+            sales = [h for h in history if h.get("type") == "Sale"]
+            if sales:
+                last_sold_price = sales[0].get("price")
+                last_sold_date = sales[0].get("date")
+
+        result.update({
+            "price": est,
+            "display_price": f"Est. ${est:,.0f}" if est else None,
+            "estimated_value_low": est_low,
+            "estimated_value_high": est_high,
+            "last_sold_price": last_sold_price,
+            "last_sold_date": last_sold_date,
+        })
+
+    return result
+
+
+async def lookup_property_by_address(
+    address: str,
+    client_id: str,
+    client_secret: str,
+) -> Optional[dict]:
+    """
+    OAuth2-based property lookup.
+    Works for any Australian property — not just active listings.
+    Raises RuntimeError if authentication fails (caller should surface this).
+    Returns None if address cannot be resolved to a Domain propertyId.
+    """
+    token = await _get_oauth_token(client_id, client_secret)
+
+    property_id = await _suggest_property_id(address, token)
+    if not property_id:
+        return None
+
+    details, price = await asyncio.gather(
+        _fetch_property_details(property_id, token),
+        _fetch_price_details(property_id, token),
+    )
+
+    return _build_lookup_result(property_id, details, price)
+
+
+# ---------------------------------------------------------------------------
+# Legacy X-Api-Key functions (suburb stats + fallback listing search)
+# ---------------------------------------------------------------------------
 
 async def get_suburb_performance(
     suburb: str,
@@ -24,34 +221,20 @@ async def get_suburb_performance(
     api_key: Optional[str],
 ) -> Optional[dict]:
     """
-    Fetch suburb performance statistics from the Domain API.
-
-    Retrieves median price, days on market, auction clearance rate, and number
-    of sales over a 3-year chronological span.
-
-    Args:
-        suburb: Suburb name (e.g. "Bondi").
-        state: State abbreviation (e.g. "NSW").
-        postcode: Postcode string (e.g. "2026").
-        property_category: Either "house" or "unit".
-        api_key: Domain API key; if None, returns None immediately.
-
-    Returns:
-        Raw JSON response dict from the Domain API, or None on any error.
+    Fetch suburb performance statistics from the Domain API (X-Api-Key auth).
+    Returns median price, days on market, auction clearance rate over 3 years.
     """
     if not api_key:
         return None
 
     url = f"{DOMAIN_BASE_URL}/suburbPerformance/residential/{state}/{suburb}/{postcode}"
-    params = {
-        "propertyCategory": property_category,
-        "chronologicalSpan": 3,
-    }
-    headers = {"X-Api-Key": api_key}
-
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(url, params=params, headers=headers)
+            resp = await client.get(
+                url,
+                params={"propertyCategory": property_category, "chronologicalSpan": 3},
+                headers={"X-Api-Key": api_key},
+            )
             resp.raise_for_status()
             return resp.json()
     except Exception:
@@ -65,46 +248,25 @@ async def get_nearby_listings(
     api_key: Optional[str],
 ) -> list[dict]:
     """
-    Fetch nearby residential listings from the Domain API using a geo-circle search.
-
-    Searches within a 1500m radius of the given coordinates, returning up to 20
-    listings sorted by most recently updated.
-
-    Args:
-        lat: Latitude of the property.
-        lng: Longitude of the property.
-        listing_type: Either "Sale" or "Rent".
-        api_key: Domain API key; if None, returns [] immediately.
-
-    Returns:
-        List of listing dicts from Domain, or [] on any error.
+    Fetch nearby residential listings via geo-circle search (X-Api-Key auth).
+    1500m radius, up to 20 results, sorted by most recently updated.
     """
     if not api_key:
         return []
 
-    url = f"{DOMAIN_BASE_URL}/listings/residential/_search"
-    headers = {
-        "X-Api-Key": api_key,
-        "Content-Type": "application/json",
-    }
     body = {
-        "geoWindow": {
-            "circle": {
-                "center": {"lat": lat, "lon": lng},
-                "radiusInMeters": 1500,
-            }
-        },
+        "geoWindow": {"circle": {"center": {"lat": lat, "lon": lng}, "radiusInMeters": 1500}},
         "listingType": listing_type,
         "pageSize": 20,
-        "sort": {
-            "sortKey": "DateUpdated",
-            "direction": "Descending",
-        },
+        "sort": {"sortKey": "DateUpdated", "direction": "Descending"},
     }
-
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.post(url, json=body, headers=headers)
+            resp = await client.post(
+                f"{DOMAIN_BASE_URL}/listings/residential/_search",
+                json=body,
+                headers={"X-Api-Key": api_key, "Content-Type": "application/json"},
+            )
             resp.raise_for_status()
             data = resp.json()
             return data if isinstance(data, list) else []
@@ -117,16 +279,14 @@ async def search_property_by_address(
     api_key: Optional[str],
 ) -> Optional[dict]:
     """
-    Search Domain API for a specific property by address string.
-    Tries current Sale listings first, then recently sold.
-    Returns extracted property details dict or None if not found.
+    Listing-based property search (X-Api-Key auth).
+    Fallback when OAuth2 credentials are not configured.
+    Only finds properties currently listed for sale or recently sold.
     """
     if not api_key:
         return None
 
-    url = f"{DOMAIN_BASE_URL}/listings/residential/_search"
     headers = {"X-Api-Key": api_key, "Content-Type": "application/json"}
-
     async with httpx.AsyncClient(timeout=10.0) as client:
         for sale_mode in [None, "RecentlySold"]:
             body: dict = {
@@ -137,33 +297,26 @@ async def search_property_by_address(
             if sale_mode:
                 body["saleMode"] = sale_mode
             try:
-                resp = await client.post(url, json=body, headers=headers)
+                resp = await client.post(
+                    f"{DOMAIN_BASE_URL}/listings/residential/_search",
+                    json=body,
+                    headers=headers,
+                )
                 resp.raise_for_status()
                 data = resp.json()
                 if isinstance(data, list) and len(data) > 0:
-                    return _extract_property_details(data[0])
+                    return _extract_listing_details(data[0])
             except Exception:
                 continue
     return None
 
 
-def _extract_property_details(listing_wrapper: dict) -> dict:
-    """Extract clean autofill data from a Domain listing object."""
+def _extract_listing_details(listing_wrapper: dict) -> dict:
+    """Extract autofill data from a Domain listing object (legacy path)."""
     listing = listing_wrapper.get("listing", listing_wrapper)
     details = listing.get("propertyDetails", {})
     pricing = listing.get("pricingDetails", {})
     media = listing.get("media", [])
-
-    # Map Domain property type to app types
-    domain_type = (details.get("propertyType") or "").lower()
-    if any(t in domain_type for t in ["house", "terrace", "semi", "duplex"]):
-        prop_type = "house"
-    elif any(t in domain_type for t in ["townhouse", "villa", "row"]):
-        prop_type = "townhouse"
-    elif any(t in domain_type for t in ["apartment", "unit", "flat", "studio"]):
-        prop_type = "unit"
-    else:
-        prop_type = "house"
 
     photos = [
         m.get("url") for m in media
@@ -177,7 +330,7 @@ def _extract_property_details(listing_wrapper: dict) -> dict:
         "found": True,
         "domain_listing_id": str(listing_id),
         "headline": listing.get("headline", ""),
-        "property_type": prop_type,
+        "property_type": _map_property_type(details.get("propertyType") or ""),
         "bedrooms": details.get("bedrooms"),
         "bathrooms": details.get("bathrooms"),
         "parking": details.get("carspaces"),
