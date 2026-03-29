@@ -186,28 +186,33 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [domainData, setDomainData] = useState<DomainPropertyData | null>(null)
   const [isLookingUp, setIsLookingUp] = useState(false)
+  const [autoFilled, setAutoFilled] = useState(false)
+
+  const applyDomainData = (data: DomainPropertyData) => {
+    if (data.property_type) setPropertyType(data.property_type as PropertyType)
+    if (data.bedrooms != null) setBedrooms(data.bedrooms)
+    if (data.bathrooms != null) setBathrooms(data.bathrooms)
+    if (data.parking != null) setParking(data.parking)
+    if (data.land_size_sqm != null) setLandSizeStr(String(Math.round(data.land_size_sqm)))
+    if (data.year_built != null) setYearBuiltStr(String(data.year_built))
+    if (data.price != null) setPriceStr(String(Math.round(data.price)))
+    setAutoFilled(true)
+  }
 
   const handleAddressSelected = async (selectedAddress: string) => {
     setAddress(selectedAddress)
     setDomainData(null)
+    setAutoFilled(false)
     if (!selectedAddress || selectedAddress.length < 10) return
     setIsLookingUp(true)
     try {
       const data = await lookupProperty(selectedAddress)
-      if (data.found) setDomainData(data)
+      if (data.found) {
+        setDomainData(data)
+        applyDomainData(data)   // ← auto-apply immediately
+      }
     } catch { /* silent */ }
     finally { setIsLookingUp(false) }
-  }
-
-  const applyDomainAutofill = () => {
-    if (!domainData) return
-    if (domainData.property_type) setPropertyType(domainData.property_type as PropertyType)
-    if (domainData.bedrooms != null) setBedrooms(domainData.bedrooms)
-    if (domainData.bathrooms != null) setBathrooms(domainData.bathrooms)
-    if (domainData.parking != null) setParking(domainData.parking)
-    if (domainData.land_size_sqm != null) setLandSizeStr(String(Math.round(domainData.land_size_sqm)))
-    if (domainData.year_built != null) setYearBuiltStr(String(domainData.year_built))
-    if (domainData.price != null) setPriceStr(String(Math.round(domainData.price)))
   }
 
   const validate = (): boolean => {
@@ -296,8 +301,8 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                 {domainData?.found && !isLookingUp && (
                   <div style={{
                     marginTop: '12px',
-                    background: 'rgba(109,174,219,0.06)',
-                    border: '1px solid rgba(109,174,219,0.3)',
+                    background: 'rgba(40,146,215,0.04)',
+                    border: '1px solid rgba(40,146,215,0.25)',
                     borderRadius: '14px',
                     overflow: 'hidden',
                   }}>
@@ -305,38 +310,49 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                     <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
                       padding: '10px 14px',
-                      background: 'rgba(109,174,219,0.1)',
-                      borderBottom: '1px solid rgba(109,174,219,0.2)',
+                      background: autoFilled ? 'rgba(16,185,129,0.08)' : 'rgba(40,146,215,0.08)',
+                      borderBottom: '1px solid rgba(40,146,215,0.15)',
                     }}>
-                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#2a7aaa', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                        ◈ Found on Domain.com.au
-                      </span>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {autoFilled ? (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#059669', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Form auto-filled from Domain.com.au
+                          </span>
+                        ) : (
+                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#2a7aaa', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                            ◈ Found on Domain.com.au
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                         {domainData.listing_url && (
                           <a href={domainData.listing_url} target="_blank" rel="noopener noreferrer"
                             style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', letterSpacing: '0.06em', textDecoration: 'none' }}>
-                            View →
+                            View on Domain →
                           </a>
                         )}
-                        <button
-                          type="button"
-                          onClick={applyDomainAutofill}
-                          style={{
-                            padding: '6px 12px',
-                            background: '#1b4353',
-                            color: '#2892d7',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontFamily: "'DM Mono', monospace",
-                            fontSize: '9px',
-                            fontWeight: 500,
-                            letterSpacing: '0.1em',
-                            textTransform: 'uppercase',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Autofill
-                        </button>
+                        {autoFilled && (
+                          <button
+                            type="button"
+                            onClick={() => applyDomainData(domainData)}
+                            style={{
+                              padding: '4px 10px',
+                              background: 'none',
+                              color: '#6daedb',
+                              border: '1px solid rgba(109,174,219,0.35)',
+                              borderRadius: '6px',
+                              fontFamily: "'DM Mono', monospace",
+                              fontSize: '9px',
+                              letterSpacing: '0.08em',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Re-apply
+                          </button>
+                        )}
                       </div>
                     </div>
 
