@@ -11,16 +11,16 @@ function formatSubKey(key: string): string {
 }
 
 function barColor(score: number): string {
-  if (score >= 80) return 'linear-gradient(90deg, #8fa998, #c9f299)'
-  if (score >= 65) return 'linear-gradient(90deg, #8fa998, #86efac)'
+  if (score >= 80) return 'linear-gradient(90deg, #6daedb, #2892d7)'
+  if (score >= 65) return 'linear-gradient(90deg, #6daedb, #86efac)'
   if (score >= 50) return 'linear-gradient(90deg, #f59e0b, #fbbf24)'
   if (score >= 35) return 'linear-gradient(90deg, #f97316, #fb923c)'
   return 'linear-gradient(90deg, #f43f5e, #fb7185)'
 }
 
 function scoreColor(score: number): string {
-  if (score >= 80) return '#c9f299'
-  if (score >= 65) return '#8fa998'
+  if (score >= 80) return '#2892d7'
+  if (score >= 65) return '#6daedb'
   if (score >= 50) return '#f59e0b'
   if (score >= 35) return '#f97316'
   return '#f43f5e'
@@ -92,7 +92,7 @@ export default function ScorePillar({ title, score, sub_scores, insights, icon }
           <ul className="space-y-2">
             {insights.map((insight, i) => (
               <li key={i} className="flex items-start gap-2 text-xs leading-relaxed" style={{ color: '#64748b' }}>
-                <span className="mt-0.5 flex-shrink-0 font-mono" style={{ color: '#8fa998' }}>›</span>
+                <span className="mt-0.5 flex-shrink-0 font-mono" style={{ color: '#6daedb' }}>›</span>
                 {insight}
               </li>
             ))}

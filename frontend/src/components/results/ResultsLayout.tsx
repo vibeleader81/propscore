@@ -18,14 +18,14 @@ function SectionTitle({ children, mono }: { children: React.ReactNode; mono?: st
   return (
     <div className="flex items-baseline gap-4 mb-5">
       {mono && (
-        <span className="font-mono text-xs tracking-[0.2em] uppercase opacity-30 flex-shrink-0" style={{ color: '#4f345a' }}>
+        <span className="font-mono text-xs tracking-[0.2em] uppercase opacity-30 flex-shrink-0" style={{ color: '#1b4353' }}>
           {mono}
         </span>
       )}
-      <h2 className="text-base font-bold uppercase tracking-widest" style={{ color: '#4f345a', fontFamily: "'DM Sans', sans-serif" }}>
+      <h2 className="text-base font-bold uppercase tracking-widest" style={{ color: '#1b4353', fontFamily: "'DM Sans', sans-serif" }}>
         {children}
       </h2>
-      <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, #c9f299 0%, transparent 100%)' }} />
+      <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, #2892d7 0%, transparent 100%)' }} />
     </div>
   )
 }
@@ -35,19 +35,19 @@ function StatCard({ label, value, sub, highlight }: { label: string; value: stri
     <div
       className="rounded-xl px-5 py-4 text-center"
       style={{
-        background: highlight ? 'linear-gradient(135deg, #4f345a 0%, #3a2444 100%)' : 'white',
-        borderTop: `3px solid ${highlight ? '#c9f299' : '#e2e8f0'}`,
+        background: highlight ? 'linear-gradient(135deg, #1b4353 0%, #173753 100%)' : 'white',
+        borderTop: `3px solid ${highlight ? '#2892d7' : '#e2e8f0'}`,
         boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
       }}
     >
-      <p className="text-xs uppercase tracking-widest mb-1" style={{ color: highlight ? '#8fa998' : '#94a3b8', fontFamily: "'DM Mono', monospace" }}>
+      <p className="text-xs uppercase tracking-widest mb-1" style={{ color: highlight ? '#6daedb' : '#94a3b8', fontFamily: "'DM Mono', monospace" }}>
         {label}
       </p>
-      <p className="text-xl font-extrabold leading-none" style={{ color: highlight ? '#c9f299' : '#1e293b', fontFamily: "'Fraunces', serif" }}>
+      <p className="text-xl font-extrabold leading-none" style={{ color: highlight ? '#2892d7' : '#1e293b', fontFamily: "'Fraunces', serif" }}>
         {value}
       </p>
       {sub && (
-        <p className="text-xs mt-1.5" style={{ color: highlight ? '#8fa998' : '#94a3b8', fontFamily: "'DM Mono', monospace" }}>
+        <p className="text-xs mt-1.5" style={{ color: highlight ? '#6daedb' : '#94a3b8', fontFamily: "'DM Mono', monospace" }}>
           {sub}
         </p>
       )}
@@ -68,25 +68,25 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
       {/* Address hero */}
       <div
         className="rounded-2xl px-7 py-7 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #3a2444 0%, #4f345a 60%, #2d1a36 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #173753 0%, #1b4353 60%, #0d2232 100%)' }}
       >
         {/* Blueprint grid overlay */}
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle fill='%23c9f299' cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle fill='%232892d7' cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
           }}
         />
         <div className="relative flex flex-col sm:flex-row sm:items-start justify-between gap-5">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs uppercase tracking-[0.2em]" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>
+              <span className="text-xs uppercase tracking-[0.2em]" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>
                 ◈ Assessed Property
               </span>
               {hasAI && (
                 <span
                   className="px-2 py-0.5 rounded text-xs font-semibold"
-                  style={{ background: 'rgba(201,242,153,0.15)', color: '#c9f299', border: '1px solid rgba(201,242,153,0.3)', fontFamily: "'DM Mono', monospace" }}
+                  style={{ background: 'rgba(40,146,215,0.15)', color: '#2892d7', border: '1px solid rgba(40,146,215,0.3)', fontFamily: "'DM Mono', monospace" }}
                 >
                   AI Expert
                 </span>
@@ -95,13 +95,13 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
             <h1 className="text-2xl font-bold text-white leading-snug truncate" style={{ fontFamily: "'Fraunces', serif" }}>
               {address}
             </h1>
-            <p className="text-sm mt-1" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>
+            <p className="text-sm mt-1" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>
               {result.suburb} · {result.state} {result.postcode}
             </p>
           </div>
           <div
             className="px-5 py-2 rounded-lg font-bold text-sm flex-shrink-0 self-start sm:self-center"
-            style={{ background: '#c9f299', color: '#3a2444', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.02em' }}
+            style={{ background: '#2892d7', color: '#ffffff', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.02em' }}
           >
             {displayBand}
           </div>
@@ -135,7 +135,7 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
         {hasAI && ai.verdict ? (
           <div
             className="rounded-2xl p-7 relative overflow-hidden"
-            style={{ background: 'white', borderLeft: '4px solid #8fa998', boxShadow: '0 2px 12px rgba(79,52,90,0.06)' }}
+            style={{ background: 'white', borderLeft: '4px solid #6daedb', boxShadow: '0 2px 12px rgba(27,67,83,0.06)' }}
           >
             <div
               className="absolute top-5 right-6 font-serif text-7xl leading-none select-none pointer-events-none"
@@ -213,8 +213,8 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
 
       {/* Footer */}
       <div className="text-center pt-2 pb-6">
-        <div className="inline-block px-4 py-1 rounded-full mb-3" style={{ background: '#f8f7f9' }}>
-          <span className="text-xs" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>PROPSCORE · AU PROPERTY INTELLIGENCE</span>
+        <div className="inline-block px-4 py-1 rounded-full mb-3" style={{ background: '#f4f8fb' }}>
+          <span className="text-xs" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>PROPSCORE · AU PROPERTY INTELLIGENCE</span>
         </div>
         <p className="text-xs max-w-lg mx-auto leading-relaxed" style={{ color: '#94a3b8' }}>
           AI-generated analysis for informational purposes only. Not financial advice.

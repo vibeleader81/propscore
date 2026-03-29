@@ -41,7 +41,7 @@ export default function FlagsPanel({ redFlags, greenFlags }: FlagsPanelProps) {
       {/* Green Flags */}
       <div
         className="rounded-2xl overflow-hidden"
-        style={{ background: '#f7fdf0', border: '1px solid #bbf7d0', borderTop: '3px solid #c9f299' }}
+        style={{ background: '#f0f7ff', border: '1px solid #bbf7d0', borderTop: '3px solid #2892d7' }}
       >
         <div className="px-5 py-3.5 flex items-center gap-2" style={{ background: '#f0fdf4', borderBottom: '1px solid #bbf7d0' }}>
           <span className="text-sm">✅</span>

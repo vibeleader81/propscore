@@ -7,8 +7,8 @@ interface ScoreGaugeProps {
 }
 
 function getArcColor(score: number): string {
-  if (score >= 80) return '#c9f299' // lime
-  if (score >= 65) return '#8fa998' // teal
+  if (score >= 80) return '#2892d7' // lime
+  if (score >= 65) return '#6daedb' // teal
   if (score >= 50) return '#f59e0b' // amber
   if (score >= 35) return '#f97316' // orange
   return '#f43f5e'                  // rose
@@ -65,13 +65,13 @@ export default function ScoreGauge({ score, band }: ScoreGaugeProps) {
     <div className="flex flex-col items-center">
       <div
         className="rounded-2xl p-4 flex flex-col items-center"
-        style={{ background: 'linear-gradient(135deg, #3a2444 0%, #4f345a 100%)', boxShadow: '0 4px 24px rgba(79,52,90,0.3)' }}
+        style={{ background: 'linear-gradient(135deg, #173753 0%, #1b4353 100%)', boxShadow: '0 4px 24px rgba(27,67,83,0.3)' }}
       >
         <div className="relative" style={{ width: size, height: size }}>
           <svg width={size} height={size} className="block">
             <defs>
               <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#8fa998" />
+                <stop offset="0%" stopColor="#6daedb" />
                 <stop offset="100%" stopColor={arcColor} />
               </linearGradient>
             </defs>
@@ -107,7 +107,7 @@ export default function ScoreGauge({ score, band }: ScoreGaugeProps) {
             >
               {displayScore}
             </span>
-            <span className="text-xs uppercase tracking-widest mt-1" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>
+            <span className="text-xs uppercase tracking-widest mt-1" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>
               out of 100
             </span>
           </div>
@@ -116,7 +116,7 @@ export default function ScoreGauge({ score, band }: ScoreGaugeProps) {
         {/* Band */}
         <div
           className="mt-1 mb-1 px-4 py-1.5 rounded-lg font-bold text-sm"
-          style={{ background: 'rgba(201,242,153,0.12)', color: '#c9f299', border: '1px solid rgba(201,242,153,0.25)', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.03em' }}
+          style={{ background: 'rgba(40,146,215,0.12)', color: '#2892d7', border: '1px solid rgba(40,146,215,0.25)', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.03em' }}
         >
           {band}
         </div>

@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --grape: #4f345a;
-  --grape-mid: #5d4e6d;
-  --teal: #8fa998;
-  --teal-light: #9cbfa7;
-  --lime: #c9f299;
-  --lime-hover: #b5e07a;
-  --page-bg: #f7f5f9;
+  --grape: #1b4353;
+  --grape-mid: #2a5f7a;
+  --teal: #6daedb;
+  --teal-light: #5ba3d0;
+  --lime: #2892d7;
+  --lime-hover: #5ba3d0;
+  --page-bg: #f4f8fb;
 }
 
 @layer base {
@@ -37,8 +37,8 @@
 }
 
 @keyframes dotPulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(201,242,153,0.5); }
-  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(201,242,153,0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(40,146,215,0.5); }
+  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(40,146,215,0); }
 }
 
 @keyframes progressBar {

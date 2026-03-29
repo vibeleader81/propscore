@@ -46,7 +46,7 @@ export default function App() {
   const showHero = !result && !isLoading
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f7f5f9' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#f4f8fb' }}>
       <Header hasResult={!!result} onReset={handleReset} />
 
       <main className="flex-1">
@@ -55,7 +55,7 @@ export default function App() {
         {showHero && (
           <div
             style={{
-              background: 'radial-gradient(ellipse at 50% 0%, #6b4d78 0%, #4f345a 50%, #3a2444 100%)',
+              background: 'radial-gradient(ellipse at 50% 0%, #1d5a73 0%, #1b4353 50%, #173753 100%)',
               position: 'relative',
               overflow: 'hidden',
               paddingTop: '88px',
@@ -68,7 +68,7 @@ export default function App() {
             {/* Radial lime glow from top */}
             <div style={{
               position: 'absolute', inset: 0, pointerEvents: 'none',
-              background: 'radial-gradient(ellipse 900px 350px at 50% -80px, rgba(201,242,153,0.05) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse 900px 350px at 50% -80px, rgba(40,146,215,0.05) 0%, transparent 70%)',
             }} />
 
             {/* Corner coordinate labels */}
@@ -76,7 +76,7 @@ export default function App() {
               position: 'absolute', top: '20px', left: '24px',
               fontFamily: "'DM Mono', monospace",
               fontSize: '9px',
-              color: 'rgba(143,169,152,0.35)',
+              color: 'rgba(109,174,219,0.35)',
               letterSpacing: '0.06em',
               userSelect: 'none',
             }}>
@@ -86,7 +86,7 @@ export default function App() {
               position: 'absolute', top: '20px', right: '24px',
               fontFamily: "'DM Mono', monospace",
               fontSize: '9px',
-              color: 'rgba(143,169,152,0.35)',
+              color: 'rgba(109,174,219,0.35)',
               letterSpacing: '0.06em',
               userSelect: 'none',
             }}>
@@ -103,19 +103,19 @@ export default function App() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '10px',
-                  background: 'rgba(201,242,153,0.07)',
-                  border: '1px solid rgba(201,242,153,0.14)',
+                  background: 'rgba(40,146,215,0.07)',
+                  border: '1px solid rgba(40,146,215,0.14)',
                   borderRadius: '100px',
                   padding: '8px 18px',
                   marginBottom: '40px',
                 }}
               >
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#c9f299', boxShadow: '0 0 8px rgba(201,242,153,0.7)' }} />
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#c9f299', letterSpacing: '0.13em', textTransform: 'uppercase' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2892d7', boxShadow: '0 0 8px rgba(40,146,215,0.7)' }} />
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#2892d7', letterSpacing: '0.13em', textTransform: 'uppercase' }}>
                   Property Intelligence Platform
                 </span>
-                <span style={{ width: '1px', height: '11px', background: 'rgba(201,242,153,0.18)' }} />
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8fa998', letterSpacing: '0.08em' }}>
+                <span style={{ width: '1px', height: '11px', background: 'rgba(40,146,215,0.18)' }} />
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#6daedb', letterSpacing: '0.08em' }}>
                   10 criteria
                 </span>
               </div>
@@ -134,7 +134,7 @@ export default function App() {
                 }}
               >
                 Know Before<br />
-                <em style={{ fontStyle: 'italic', color: '#c9f299' }}>You Offer</em>
+                <em style={{ fontStyle: 'italic', color: '#2892d7' }}>You Offer</em>
               </h1>
 
               {/* Subhead */}
@@ -143,7 +143,7 @@ export default function App() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 'clamp(16px, 2.5vw, 19px)',
-                  color: 'rgba(156,191,167,0.85)',
+                  color: 'rgba(109,174,219,0.85)',
                   lineHeight: 1.65,
                   maxWidth: '500px',
                   margin: '0 auto 52px',
@@ -181,7 +181,7 @@ export default function App() {
             {/* Bottom bleed into form */}
             <div style={{
               position: 'absolute', bottom: 0, left: 0, right: 0, height: '80px',
-              background: 'linear-gradient(to bottom, transparent, #f7f5f9)',
+              background: 'linear-gradient(to bottom, transparent, #f4f8fb)',
               pointerEvents: 'none',
             }} />
           </div>

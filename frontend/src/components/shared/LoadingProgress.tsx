@@ -62,7 +62,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
   return (
     <div style={{
       minHeight: 'calc(100vh - 64px)',
-      background: '#3a2444',
+      background: '#173753',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -82,7 +82,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
       <div style={{
         position: 'absolute',
         inset: 0,
-        background: 'radial-gradient(ellipse 700px 500px at 50% 40%, rgba(93,78,109,0.4) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse 700px 500px at 50% 40%, rgba(27,67,83,0.4) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 
@@ -91,7 +91,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
         position: 'absolute', top: '20px', left: '24px',
         fontFamily: "'DM Mono', monospace",
         fontSize: '9px',
-        color: 'rgba(143,169,152,0.25)',
+        color: 'rgba(109,174,219,0.25)',
         letterSpacing: '0.06em',
         userSelect: 'none',
       }}>
@@ -101,7 +101,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
         position: 'absolute', top: '20px', right: '24px',
         fontFamily: "'DM Mono', monospace",
         fontSize: '9px',
-        color: 'rgba(143,169,152,0.25)',
+        color: 'rgba(109,174,219,0.25)',
         letterSpacing: '0.06em',
         userSelect: 'none',
       }}>
@@ -122,7 +122,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
           <div style={{
             fontFamily: "'DM Mono', monospace",
             fontSize: '9px',
-            color: 'rgba(143,169,152,0.5)',
+            color: 'rgba(109,174,219,0.5)',
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             marginBottom: '10px',
@@ -148,8 +148,8 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
           <div style={{
             width: '72px',
             height: '72px',
-            background: 'rgba(201,242,153,0.06)',
-            border: '1px solid rgba(201,242,153,0.12)',
+            background: 'rgba(40,146,215,0.06)',
+            border: '1px solid rgba(40,146,215,0.12)',
             borderRadius: '20px',
             display: 'flex',
             alignItems: 'center',
@@ -170,7 +170,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
             letterSpacing: '0.01em',
           }}>
             {stage.label}
-            <span style={{ color: '#9cbfa7', opacity: 0.7 }}>…</span>
+            <span style={{ color: '#5ba3d0', opacity: 0.7 }}>…</span>
           </span>
         </div>
 
@@ -185,10 +185,10 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
             <div style={{
               height: '100%',
               borderRadius: '100px',
-              background: 'linear-gradient(90deg, #9cbfa7, #c9f299)',
+              background: 'linear-gradient(90deg, #5ba3d0, #2892d7)',
               width: `${pct}%`,
               transition: 'width 0.3s ease-linear',
-              boxShadow: '0 0 12px rgba(201,242,153,0.4)',
+              boxShadow: '0 0 12px rgba(40,146,215,0.4)',
             }} />
           </div>
         </div>
@@ -202,7 +202,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
           <span style={{
             fontFamily: "'DM Mono', monospace",
             fontSize: '10px',
-            color: '#8fa998',
+            color: '#6daedb',
             letterSpacing: '0.06em',
           }}>
             {Math.round(pct)}% complete
@@ -210,7 +210,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
           <span style={{
             fontFamily: "'DM Mono', monospace",
             fontSize: '10px',
-            color: 'rgba(143,169,152,0.5)',
+            color: 'rgba(109,174,219,0.5)',
             letterSpacing: '0.06em',
           }}>
             Step {Math.min(stageIdx + 1, STAGES.length)} of {STAGES.length}
@@ -229,11 +229,11 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
                 transition: 'all 0.4s ease',
                 width: i < stageIdx ? '16px' : i === stageIdx ? '24px' : '6px',
                 background: i < stageIdx
-                  ? '#9cbfa7'
+                  ? '#5ba3d0'
                   : i === stageIdx
-                  ? '#c9f299'
+                  ? '#2892d7'
                   : 'rgba(255,255,255,0.1)',
-                boxShadow: i === stageIdx ? '0 0 8px rgba(201,242,153,0.5)' : 'none',
+                boxShadow: i === stageIdx ? '0 0 8px rgba(40,146,215,0.5)' : 'none',
               }}
             />
           ))}
@@ -242,8 +242,8 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
         {/* AI stage notice */}
         {isAIStage && (
           <div style={{
-            background: 'rgba(201,242,153,0.04)',
-            border: '1px solid rgba(201,242,153,0.12)',
+            background: 'rgba(40,146,215,0.04)',
+            border: '1px solid rgba(40,146,215,0.12)',
             borderRadius: '16px',
             padding: '20px 24px',
             textAlign: 'center',
@@ -253,7 +253,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
               fontFamily: "'Fraunces', serif",
               fontSize: '16px',
               fontWeight: 500,
-              color: '#c9f299',
+              color: '#2892d7',
               marginBottom: '8px',
               letterSpacing: '-0.02em',
             }}>
@@ -262,7 +262,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '13px',
-              color: 'rgba(156,191,167,0.8)',
+              color: 'rgba(109,174,219,0.8)',
               lineHeight: 1.6,
               marginBottom: '8px',
             }}>
@@ -272,7 +272,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
             <p style={{
               fontFamily: "'DM Mono', monospace",
               fontSize: '10px',
-              color: 'rgba(143,169,152,0.6)',
+              color: 'rgba(109,174,219,0.6)',
               letterSpacing: '0.06em',
             }}>
               15–25 seconds — your detailed expert report is worth the wait
@@ -289,13 +289,13 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
                 alignItems: 'center',
                 gap: '10px',
               }}>
-                <svg width="14" height="14" viewBox="0 0 20 20" fill="#9cbfa7" style={{ flexShrink: 0 }}>
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="#5ba3d0" style={{ flexShrink: 0 }}>
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 <span style={{
                   fontFamily: "'DM Mono', monospace",
                   fontSize: '10px',
-                  color: 'rgba(143,169,152,0.55)',
+                  color: 'rgba(109,174,219,0.55)',
                   letterSpacing: '0.04em',
                 }}>
                   {s.label}

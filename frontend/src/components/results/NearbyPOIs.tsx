@@ -44,7 +44,7 @@ function POIColumn({ title, symbol, items, accentColor, headerBg, borderColor }:
                 className="text-xs font-bold flex-shrink-0"
                 style={{
                   fontFamily: "'DM Mono', monospace",
-                  color: poi.distance_m < 500 ? '#c9f299' : poi.distance_m < 1000 ? '#8fa998' : '#94a3b8',
+                  color: poi.distance_m < 500 ? '#2892d7' : poi.distance_m < 1000 ? '#6daedb' : '#94a3b8',
                 }}
               >
                 {formatDistance(poi.distance_m)}
@@ -64,25 +64,25 @@ export default function NearbyPOIs({ pois }: NearbyPOIsProps) {
         title="Schools"
         symbol="🎓"
         items={pois.schools}
-        accentColor="#4f345a"
-        headerBg="#faf7fb"
-        borderColor="#8fa998"
+        accentColor="#1b4353"
+        headerBg="#f4f8fb"
+        borderColor="#6daedb"
       />
       <POIColumn
         title="Transport"
         symbol="🚉"
         items={pois.transport}
-        accentColor="#4f345a"
-        headerBg="#f7f9f8"
-        borderColor="#4f345a"
+        accentColor="#1b4353"
+        headerBg="#f4f8fb"
+        borderColor="#1b4353"
       />
       <POIColumn
         title="Parks & Recreation"
         symbol="🌳"
         items={pois.parks}
-        accentColor="#4f345a"
-        headerBg="#f7fdf0"
-        borderColor="#c9f299"
+        accentColor="#1b4353"
+        headerBg="#f0f7ff"
+        borderColor="#2892d7"
       />
     </div>
   )

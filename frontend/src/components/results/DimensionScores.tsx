@@ -45,8 +45,8 @@ const DIMENSIONS = [
 
 function barGradient(score: number, max: number): string {
   const pct = score / max
-  if (pct >= 0.8) return 'linear-gradient(90deg, #8fa998, #c9f299)'
-  if (pct >= 0.6) return 'linear-gradient(90deg, #8fa998, #86efac)'
+  if (pct >= 0.8) return 'linear-gradient(90deg, #6daedb, #2892d7)'
+  if (pct >= 0.6) return 'linear-gradient(90deg, #6daedb, #86efac)'
   if (pct >= 0.4) return 'linear-gradient(90deg, #f59e0b, #fbbf24)'
   if (pct >= 0.2) return 'linear-gradient(90deg, #f97316, #fb923c)'
   return 'linear-gradient(90deg, #f43f5e, #fb7185)'
@@ -54,8 +54,8 @@ function barGradient(score: number, max: number): string {
 
 function scoreColor(score: number, max: number): string {
   const pct = score / max
-  if (pct >= 0.8) return '#c9f299'
-  if (pct >= 0.6) return '#8fa998'
+  if (pct >= 0.8) return '#2892d7'
+  if (pct >= 0.6) return '#6daedb'
   if (pct >= 0.4) return '#f59e0b'
   if (pct >= 0.2) return '#f97316'
   return '#f43f5e'
@@ -128,14 +128,14 @@ export default function DimensionScores({ scores, compositeScore }: DimensionSco
       {/* Composite total */}
       <div
         className="rounded-xl px-6 py-5 flex items-center justify-between"
-        style={{ background: 'linear-gradient(135deg, #3a2444 0%, #4f345a 100%)', borderTop: '3px solid #c9f299' }}
+        style={{ background: 'linear-gradient(135deg, #173753 0%, #1b4353 100%)', borderTop: '3px solid #2892d7' }}
       >
-        <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>
+        <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>
           Composite Score
         </span>
         <span style={{ fontFamily: "'Fraunces', serif" }}>
-          <span className="font-extrabold" style={{ fontSize: 28, color: '#c9f299' }}>{compositeScore}</span>
-          <span className="text-sm" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>/100</span>
+          <span className="font-extrabold" style={{ fontSize: 28, color: '#2892d7' }}>{compositeScore}</span>
+          <span className="text-sm" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>/100</span>
         </span>
       </div>
     </div>

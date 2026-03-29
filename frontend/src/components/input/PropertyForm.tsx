@@ -17,13 +17,13 @@ const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
 
 function SectionLabel({ number, title }: { number: string; title: string }) {
   return (
-    <div style={{ padding: '18px 28px 16px', borderBottom: '1px solid rgba(79,52,90,0.07)' }}>
+    <div style={{ padding: '18px 28px 16px', borderBottom: '1px solid rgba(27,67,83,0.07)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         <span style={{
           fontFamily: "'Fraunces', serif",
           fontSize: '32px',
           fontWeight: 300,
-          color: 'rgba(79,52,90,0.15)',
+          color: 'rgba(27,67,83,0.15)',
           lineHeight: 1,
           letterSpacing: '-0.03em',
           userSelect: 'none',
@@ -32,7 +32,7 @@ function SectionLabel({ number, title }: { number: string; title: string }) {
           fontFamily: "'DM Mono', monospace",
           fontSize: '10px',
           fontWeight: 500,
-          color: '#4f345a',
+          color: '#1b4353',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
         }}>{title}</span>
@@ -48,13 +48,13 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
       fontFamily: "'DM Sans', sans-serif",
       fontSize: '12px',
       fontWeight: 600,
-      color: '#4f345a',
+      color: '#1b4353',
       letterSpacing: '0.04em',
       textTransform: 'uppercase',
       marginBottom: '8px',
     }}>
       {children}
-      {required && <span style={{ color: '#c9f299', marginLeft: '3px' }}>*</span>}
+      {required && <span style={{ color: '#2892d7', marginLeft: '3px' }}>*</span>}
     </label>
   )
 }
@@ -62,11 +62,11 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '11px 14px',
-  border: '1px solid rgba(79,52,90,0.15)',
+  border: '1px solid rgba(27,67,83,0.15)',
   borderRadius: '10px',
   fontFamily: "'DM Sans', sans-serif",
   fontSize: '14px',
-  color: '#1a1025',
+  color: '#0d1e2c',
   background: 'white',
   outline: 'none',
   transition: 'border-color 0.15s, box-shadow 0.15s',
@@ -79,8 +79,8 @@ function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
       {...props}
       style={{
         ...inputStyle,
-        borderColor: focused ? '#9cbfa7' : 'rgba(79,52,90,0.15)',
-        boxShadow: focused ? '0 0 0 3px rgba(156,191,167,0.18)' : 'none',
+        borderColor: focused ? '#5ba3d0' : 'rgba(27,67,83,0.15)',
+        boxShadow: focused ? '0 0 0 3px rgba(109,174,219,0.18)' : 'none',
       }}
       onFocus={e => { setFocused(true); props.onFocus?.(e) }}
       onBlur={e => { setFocused(false); props.onBlur?.(e) }}
@@ -107,7 +107,7 @@ function CurrencyInput({
           position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)',
           fontFamily: "'DM Mono', monospace",
           fontSize: '14px',
-          color: focused ? '#8fa998' : 'rgba(143,169,152,0.7)',
+          color: focused ? '#6daedb' : 'rgba(109,174,219,0.7)',
           pointerEvents: 'none',
           transition: 'color 0.15s',
         }}>$</span>
@@ -121,14 +121,14 @@ function CurrencyInput({
             ...inputStyle,
             paddingLeft: '28px',
             fontFamily: "'DM Mono', monospace",
-            borderColor: focused ? '#9cbfa7' : 'rgba(79,52,90,0.15)',
-            boxShadow: focused ? '0 0 0 3px rgba(156,191,167,0.18)' : 'none',
+            borderColor: focused ? '#5ba3d0' : 'rgba(27,67,83,0.15)',
+            boxShadow: focused ? '0 0 0 3px rgba(109,174,219,0.18)' : 'none',
           }}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
         />
       </div>
-      {helpText && <p style={{ marginTop: '5px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#8fa998' }}>{helpText}</p>}
+      {helpText && <p style={{ marginTop: '5px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#6daedb' }}>{helpText}</p>}
     </div>
   )
 }
@@ -142,10 +142,10 @@ function NumberSelector({
     width: '32px', height: '32px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: 'none',
-    border: '1px solid rgba(79,52,90,0.18)',
+    border: '1px solid rgba(27,67,83,0.18)',
     borderRadius: '8px',
     cursor: disabled ? 'not-allowed' : 'pointer',
-    color: disabled ? 'rgba(79,52,90,0.3)' : '#4f345a',
+    color: disabled ? 'rgba(27,67,83,0.3)' : '#1b4353',
     fontSize: '16px',
     fontWeight: 500,
     transition: 'all 0.12s',
@@ -160,7 +160,7 @@ function NumberSelector({
           fontFamily: "'Fraunces', serif",
           fontSize: '22px',
           fontWeight: 500,
-          color: '#4f345a',
+          color: '#1b4353',
           minWidth: '28px',
           textAlign: 'center',
           letterSpacing: '-0.02em',
@@ -244,9 +244,9 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const specPillStyle: React.CSSProperties = {
     fontFamily: "'DM Mono', monospace",
     fontSize: '10px',
-    color: '#5a8a6a',
-    background: 'rgba(90,138,106,0.1)',
-    border: '1px solid rgba(90,138,106,0.2)',
+    color: '#2a7aaa',
+    background: 'rgba(29,112,162,0.1)',
+    border: '1px solid rgba(29,112,162,0.2)',
     borderRadius: '6px',
     padding: '3px 8px',
     whiteSpace: 'nowrap' as const,
@@ -255,10 +255,10 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const cardStyle: React.CSSProperties = {
     background: 'white',
     borderRadius: '20px',
-    border: '1px solid rgba(79,52,90,0.1)',
+    border: '1px solid rgba(27,67,83,0.1)',
     overflow: 'hidden',
-    boxShadow: '0 2px 24px rgba(79,52,90,0.06)',
-    borderTop: '3px solid #c9f299',
+    boxShadow: '0 2px 24px rgba(27,67,83,0.06)',
+    borderTop: '3px solid #2892d7',
   }
 
   const errorStyle: React.CSSProperties = {
@@ -286,8 +286,8 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
 
                 {/* Domain lookup indicator */}
                 {isLookingUp && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8fa998', letterSpacing: '0.06em' }}>
-                    <div style={{ width: '12px', height: '12px', border: '1.5px solid #9cbfa7', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#6daedb', letterSpacing: '0.06em' }}>
+                    <div style={{ width: '12px', height: '12px', border: '1.5px solid #5ba3d0', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                     Looking up on Domain.com.au...
                   </div>
                 )}
@@ -296,8 +296,8 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                 {domainData?.found && !isLookingUp && (
                   <div style={{
                     marginTop: '12px',
-                    background: 'rgba(156,191,167,0.06)',
-                    border: '1px solid rgba(156,191,167,0.3)',
+                    background: 'rgba(109,174,219,0.06)',
+                    border: '1px solid rgba(109,174,219,0.3)',
                     borderRadius: '14px',
                     overflow: 'hidden',
                   }}>
@@ -305,16 +305,16 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                     <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
                       padding: '10px 14px',
-                      background: 'rgba(156,191,167,0.1)',
-                      borderBottom: '1px solid rgba(156,191,167,0.2)',
+                      background: 'rgba(109,174,219,0.1)',
+                      borderBottom: '1px solid rgba(109,174,219,0.2)',
                     }}>
-                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#5a8a6a', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#2a7aaa', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                         ◈ Found on Domain.com.au
                       </span>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         {domainData.listing_url && (
                           <a href={domainData.listing_url} target="_blank" rel="noopener noreferrer"
-                            style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', letterSpacing: '0.06em', textDecoration: 'none' }}>
+                            style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', letterSpacing: '0.06em', textDecoration: 'none' }}>
                             View →
                           </a>
                         )}
@@ -323,8 +323,8 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                           onClick={applyDomainAutofill}
                           style={{
                             padding: '6px 12px',
-                            background: '#4f345a',
-                            color: '#c9f299',
+                            background: '#1b4353',
+                            color: '#2892d7',
                             border: 'none',
                             borderRadius: '6px',
                             fontFamily: "'DM Mono', monospace",
@@ -343,7 +343,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                     {/* Property specs */}
                     <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {domainData.headline && (
-                        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 600, color: '#2d4a35', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 600, color: '#0e3252', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {domainData.headline}
                         </p>
                       )}
@@ -375,30 +375,30 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                           gap: '8px',
                         }}>
                           {domainData.display_price && (
-                            <div style={{ background: 'rgba(79,52,90,0.06)', borderRadius: '8px', padding: '8px 10px' }}>
-                              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
+                            <div style={{ background: 'rgba(27,67,83,0.06)', borderRadius: '8px', padding: '8px 10px' }}>
+                              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
                                 AVM Estimate
                               </div>
-                              <div style={{ fontFamily: "'Fraunces', serif", fontSize: '14px', fontWeight: 700, color: '#4f345a' }}>
+                              <div style={{ fontFamily: "'Fraunces', serif", fontSize: '14px', fontWeight: 700, color: '#1b4353' }}>
                                 {domainData.display_price}
                               </div>
                               {domainData.estimated_value_low != null && domainData.estimated_value_high != null && (
-                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', marginTop: '2px' }}>
+                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', marginTop: '2px' }}>
                                   ${(domainData.estimated_value_low / 1000).toFixed(0)}k – ${(domainData.estimated_value_high / 1000).toFixed(0)}k range
                                 </div>
                               )}
                             </div>
                           )}
                           {domainData.last_sold_price != null && (
-                            <div style={{ background: 'rgba(79,52,90,0.06)', borderRadius: '8px', padding: '8px 10px' }}>
-                              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
+                            <div style={{ background: 'rgba(27,67,83,0.06)', borderRadius: '8px', padding: '8px 10px' }}>
+                              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
                                 Last Sold
                               </div>
-                              <div style={{ fontFamily: "'Fraunces', serif", fontSize: '14px', fontWeight: 700, color: '#4f345a' }}>
+                              <div style={{ fontFamily: "'Fraunces', serif", fontSize: '14px', fontWeight: 700, color: '#1b4353' }}>
                                 ${domainData.last_sold_price.toLocaleString('en-AU')}
                               </div>
                               {domainData.last_sold_date && (
-                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#8fa998', marginTop: '2px' }}>
+                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', marginTop: '2px' }}>
                                   {new Date(domainData.last_sold_date).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })}
                                 </div>
                               )}
@@ -424,9 +424,9 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                         display: 'flex', alignItems: 'center', gap: '7px',
                         padding: '9px 18px',
                         borderRadius: '100px',
-                        border: propertyType === pt.value ? '1px solid #4f345a' : '1px solid rgba(79,52,90,0.15)',
-                        background: propertyType === pt.value ? '#4f345a' : 'white',
-                        color: propertyType === pt.value ? 'white' : '#5d4e6d',
+                        border: propertyType === pt.value ? '1px solid #1b4353' : '1px solid rgba(27,67,83,0.15)',
+                        background: propertyType === pt.value ? '#1b4353' : 'white',
+                        color: propertyType === pt.value ? 'white' : '#2a5f7a',
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: '13px',
                         fontWeight: propertyType === pt.value ? 600 : 400,
@@ -435,7 +435,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                       }}
                     >
                       {propertyType === pt.value && (
-                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#c9f299', flexShrink: 0 }} />
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2892d7', flexShrink: 0 }} />
                       )}
                       {pt.label}
                     </button>
@@ -493,12 +493,12 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
               <div style={{
                 display: 'flex', alignItems: 'flex-start', gap: '12px',
                 padding: '12px 16px',
-                background: 'rgba(79,52,90,0.03)',
+                background: 'rgba(27,67,83,0.03)',
                 borderRadius: '10px',
-                border: '1px solid rgba(79,52,90,0.07)',
+                border: '1px solid rgba(27,67,83,0.07)',
               }}>
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#9cbfa7', marginTop: '5px', flexShrink: 0 }} />
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#8fa998', lineHeight: 1.55 }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#5ba3d0', marginTop: '5px', flexShrink: 0 }} />
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6daedb', lineHeight: 1.55 }}>
                   Used to assess affordability and mortgage stress. Your data stays in your browser and is never stored.
                 </p>
               </div>
@@ -525,8 +525,8 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
             style={{
               width: '100%',
               padding: '18px 24px',
-              background: isLoading ? 'rgba(79,52,90,0.2)' : '#c9f299',
-              color: isLoading ? '#8fa998' : '#3a2444',
+              background: isLoading ? 'rgba(27,67,83,0.2)' : '#2892d7',
+              color: isLoading ? '#6daedb' : '#ffffff',
               border: 'none',
               borderRadius: '16px',
               fontFamily: "'DM Sans', sans-serif",
@@ -539,12 +539,12 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
               alignItems: 'center',
               justifyContent: 'center',
               gap: '10px',
-              boxShadow: isLoading ? 'none' : '0 4px 20px rgba(201,242,153,0.35)',
+              boxShadow: isLoading ? 'none' : '0 4px 20px rgba(40,146,215,0.35)',
             }}
           >
             {isLoading ? (
               <>
-                <div style={{ width: '18px', height: '18px', border: '2px solid rgba(143,169,152,0.4)', borderTopColor: '#8fa998', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                <div style={{ width: '18px', height: '18px', border: '2px solid rgba(109,174,219,0.4)', borderTopColor: '#6daedb', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                 Assessing...
               </>
             ) : (

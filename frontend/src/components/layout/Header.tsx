@@ -7,8 +7,8 @@ export default function Header({ hasResult, onReset }: HeaderProps) {
   return (
     <header
       style={{
-        background: '#4f345a',
-        borderBottom: '1px solid rgba(201,242,153,0.08)',
+        background: '#1b4353',
+        borderBottom: '1px solid rgba(40,146,215,0.08)',
         position: 'sticky',
         top: 0,
         zIndex: 50,
@@ -31,16 +31,16 @@ export default function Header({ hasResult, onReset }: HeaderProps) {
             style={{
               width: '38px',
               height: '38px',
-              background: '#c9f299',
+              background: '#2892d7',
               borderRadius: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              boxShadow: '0 2px 14px rgba(201,242,153,0.28)',
+              boxShadow: '0 2px 14px rgba(40,146,215,0.28)',
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="#4f345a">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="#1b4353">
               <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
             </svg>
           </div>
@@ -63,11 +63,11 @@ export default function Header({ hasResult, onReset }: HeaderProps) {
                   fontFamily: "'DM Mono', monospace",
                   fontSize: '9px',
                   fontWeight: 500,
-                  color: '#c9f299',
+                  color: '#2892d7',
                   letterSpacing: '0.14em',
                   textTransform: 'uppercase',
-                  background: 'rgba(201,242,153,0.1)',
-                  border: '1px solid rgba(201,242,153,0.2)',
+                  background: 'rgba(40,146,215,0.1)',
+                  border: '1px solid rgba(40,146,215,0.2)',
                   padding: '3px 8px',
                   borderRadius: '100px',
                 }}
@@ -79,7 +79,7 @@ export default function Header({ hasResult, onReset }: HeaderProps) {
               style={{
                 fontFamily: "'DM Mono', monospace",
                 fontSize: '10px',
-                color: '#8fa998',
+                color: '#6daedb',
                 letterSpacing: '0.07em',
                 marginTop: '3px',
                 textTransform: 'uppercase',
@@ -124,7 +124,7 @@ export default function Header({ hasResult, onReset }: HeaderProps) {
                 gap: '8px',
                 fontFamily: "'DM Mono', monospace",
                 fontSize: '10px',
-                color: '#8fa998',
+                color: '#6daedb',
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
               }}
@@ -135,7 +135,7 @@ export default function Header({ hasResult, onReset }: HeaderProps) {
                   width: '7px',
                   height: '7px',
                   borderRadius: '50%',
-                  background: '#c9f299',
+                  background: '#2892d7',
                 }}
               />
               Live
