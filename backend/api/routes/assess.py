@@ -90,6 +90,13 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         walkability_task, risk_task, domain_perf_task, return_exceptions=False
     )
 
+    # Parse Domain median early so value scorer can use it
+    domain_median_price: float | None = None
+    if domain_perf_raw:
+        entries = domain_perf_raw.get("entriesResults", [])
+        if entries:
+            domain_median_price = entries[0].get("values", {}).get("median")
+
     # ------------------------------------------------------------------
     # Step 4: Score pillars
     # ------------------------------------------------------------------
@@ -123,9 +130,19 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
     walkability_pillar = scoring.score_walkability(walkability_raw)
     risk_pillar = scoring.score_risk(risk_raw)
 
+    value_pillar = scoring.score_value_for_money(
+        price=request.price,
+        suburb_stats=stats,
+        property_type=request.property_type,
+        bedrooms=request.bedrooms,
+        land_size_sqm=request.land_size_sqm,
+        domain_median=domain_median_price,
+    )
+
     pillars = {
         "location": location_pillar,
         "affordability": affordability_pillar,
+        "value": value_pillar,
         "features": features_pillar,
         "suburb_quality": suburb_quality_pillar,
         "investment": investment_pillar,
@@ -153,14 +170,14 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         overall_score, band, pillars, suburb, request.price
     )
 
-    # Parse Domain market data
+    # Build Domain market data response object
     domain_market: DomainMarketData | None = None
     if domain_perf_raw:
         entries = domain_perf_raw.get("entriesResults", [])
         if entries:
             latest = entries[0].get("values", {})
             domain_market = DomainMarketData(
-                median_sale_price=latest.get("median"),
+                median_sale_price=domain_median_price,
                 days_on_market=latest.get("daysOnMarket"),
                 number_sold=latest.get("numberSold"),
                 auction_clearance_rate=latest.get("auctionClearanceRate"),

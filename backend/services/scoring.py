@@ -21,14 +21,16 @@ from models.response import AlternativeSuburb, PillarBreakdown
 # ---------------------------------------------------------------------------
 
 WEIGHTS: dict[str, float] = {
-    "location": 0.25,
-    "affordability": 0.22,
-    "features": 0.18,
-    "suburb_quality": 0.13,
-    "investment": 0.10,
-    "walkability": 0.08,
+    "location": 0.22,
+    "affordability": 0.18,
+    "value": 0.14,        # is the price a good deal vs comparable sales?
+    "features": 0.15,
+    "suburb_quality": 0.12,
+    "investment": 0.08,
+    "walkability": 0.07,
     "risk": 0.04,
 }
+# weights sum: 1.00
 
 # ---------------------------------------------------------------------------
 # Internal helpers
@@ -549,7 +551,168 @@ def score_suburb_quality(suburb_stats: Optional[dict]) -> PillarBreakdown:
 
 
 # ---------------------------------------------------------------------------
-# 5. Investment
+# 5. Value for Money  (is the asking price a good deal vs comparable sales?)
+# ---------------------------------------------------------------------------
+
+_HOUSE_BEDROOM_MULT: dict[int, float] = {1: 0.62, 2: 0.82, 3: 1.00, 4: 1.20, 5: 1.35}
+_UNIT_BEDROOM_MULT: dict[int, float] = {1: 0.78, 2: 1.00, 3: 1.22}
+_TYPICAL_LAND_SQM = 450  # baseline block size that suburb median typically reflects
+
+
+def _estimate_fair_value(
+    property_type: str,
+    bedrooms: int,
+    land_size_sqm: float,
+    suburb_stats: dict,
+) -> Optional[float]:
+    """
+    Estimate fair market value using suburb median adjusted for bedroom count
+    and land size deviation from the suburb norm.
+    Returns None if insufficient data.
+    """
+    is_house = property_type.lower() in ("house", "townhouse")
+    base_median: float = (
+        suburb_stats.get("median_house_price", 0)
+        if is_house
+        else suburb_stats.get("median_unit_price", 0)
+    )
+    if not base_median:
+        return None
+
+    # Suburb median typically reflects a 3-bed house / 2-bed unit — adjust accordingly
+    bed_mult = (
+        _HOUSE_BEDROOM_MULT.get(bedrooms, 1.35 if bedrooms > 5 else 0.62)
+        if is_house
+        else _UNIT_BEDROOM_MULT.get(bedrooms, 1.22 if bedrooms > 3 else 0.78)
+    )
+    estimated = base_median * bed_mult
+
+    # Land size premium/discount for houses
+    if is_house and land_size_sqm > 0:
+        price_per_sqm = suburb_stats.get("price_per_sqm_median", 0)
+        if price_per_sqm:
+            land_diff = land_size_sqm - _TYPICAL_LAND_SQM
+            # Use 25% of marginal land value (land rarely trades at full $/sqm)
+            estimated += land_diff * price_per_sqm * 0.25
+
+    return max(estimated, 0) or None
+
+
+def score_value_for_money(
+    price: float,
+    suburb_stats: Optional[dict],
+    property_type: str,
+    bedrooms: int,
+    land_size_sqm: float,
+    domain_median: Optional[float] = None,
+) -> PillarBreakdown:
+    """
+    Score whether the asking price is good value vs comparable sales.
+
+    This is distinct from affordability (can you service the mortgage?) —
+    it asks whether the vendor's price is fair relative to what similar
+    properties actually sell for in the same suburb.
+    """
+    estimated: Optional[float] = None
+
+    if suburb_stats:
+        estimated = _estimate_fair_value(property_type, bedrooms, land_size_sqm, suburb_stats)
+
+    # Blend in live Domain median if available (40% weight — richer comparable data)
+    if domain_median and domain_median > 0:
+        estimated = (estimated * 0.6 + domain_median * 0.4) if estimated else domain_median
+
+    if not estimated:
+        return PillarBreakdown(
+            score=55.0,
+            sub_scores={},
+            insights=[
+                "Insufficient comparable sales data to assess value — "
+                "request a comparative market analysis (CMA) from a local agent before committing."
+            ],
+        )
+
+    price_ratio = price / estimated
+    pct_diff = (price_ratio - 1.0) * 100
+    dollar_diff = abs(price - estimated)
+    suburb_name = (suburb_stats or {}).get("suburb", "this suburb")
+
+    # Score: 100 = deep discount, 60 = at market, 8 = significantly overpriced
+    if price_ratio <= 0.85:
+        value_score = 100.0
+    elif price_ratio <= 0.92:
+        value_score = 88.0
+    elif price_ratio <= 0.98:
+        value_score = 74.0
+    elif price_ratio <= 1.04:
+        value_score = 60.0
+    elif price_ratio <= 1.10:
+        value_score = 42.0
+    elif price_ratio <= 1.20:
+        value_score = 22.0
+    else:
+        value_score = 8.0
+
+    insights: list[str] = []
+
+    data_source = "suburb median adjusted for bedrooms & land size"
+    if domain_median and suburb_stats:
+        data_source = "suburb median blended with Domain.com.au comparable sales"
+    elif domain_median:
+        data_source = "Domain.com.au comparable sales"
+
+    insights.append(
+        f"Estimated fair market value: {_fmt_price(estimated)} ({data_source})."
+    )
+
+    if abs(pct_diff) < 3:
+        insights.append(
+            f"At {_fmt_price(price)}, the asking price is in line with comparable sales — fairly priced."
+        )
+    elif pct_diff < 0:
+        action = "exceptional value; strong buying signal" if abs(pct_diff) > 12 else "good value; competitive offer appropriate"
+        insights.append(
+            f"Asking price is {abs(pct_diff):.1f}% ({_fmt_price(dollar_diff)}) BELOW estimated "
+            f"fair value — {action}."
+        )
+    else:
+        action = "overpriced; negotiate firmly or walk away" if pct_diff > 15 else "slight premium; test vendor flexibility before committing"
+        insights.append(
+            f"Asking price is {pct_diff:.1f}% ({_fmt_price(dollar_diff)}) ABOVE estimated "
+            f"fair value — {action}."
+        )
+
+    if suburb_stats:
+        dom = suburb_stats.get("days_on_market_median", 0)
+        if dom > 60 and pct_diff > 5:
+            insights.append(
+                f"Slow market in {suburb_name} ({dom} days median) strengthens your negotiating "
+                "position — vendors are likely motivated."
+            )
+        elif dom < 20 and pct_diff < 0:
+            insights.append(
+                f"Fast-moving market ({dom} days median) plus below-market pricing — "
+                "act quickly, competing buyers are likely."
+            )
+
+    if domain_median:
+        insights.append(
+            f"Domain.com.au suburb median (recent comparable sales): {_fmt_price(domain_median)}."
+        )
+
+    return PillarBreakdown(
+        score=round(value_score, 1),
+        sub_scores={
+            "price_vs_market": round(value_score, 1),
+            "estimated_fair_value": round(estimated),
+            "price_ratio_pct": round(price_ratio * 100, 1),
+        },
+        insights=insights,
+    )
+
+
+# ---------------------------------------------------------------------------
+# 6. Investment
 # ---------------------------------------------------------------------------
 
 
@@ -918,6 +1081,15 @@ def generate_red_flags(
             "Investment fundamentals are poor — low rental yield and/or above-median price per sqm."
         )
 
+    value_pillar = pillars.get("value")
+    if value_pillar and value_pillar.score < 35:
+        ratio_pct = value_pillar.sub_scores.get("price_ratio_pct", 100)
+        pct_over = ratio_pct - 100
+        flags.append(
+            f"Property appears significantly overpriced — asking price is ~{pct_over:.0f}% above "
+            "estimated comparable sales value. Request an independent valuation before proceeding."
+        )
+
     if pillars["features"].score < 45:
         flags.append(
             "Property features score is low — limited bedrooms, bathrooms, or parking may restrict the buyer pool on resale."
@@ -1001,6 +1173,16 @@ def generate_green_flags(
             "Strong investment fundamentals — attractive gross yield and competitive price per sqm."
         )
 
+    value_pillar = pillars.get("value")
+    if value_pillar and value_pillar.score >= 85:
+        ratio_pct = value_pillar.sub_scores.get("price_ratio_pct", 100)
+        pct_under = 100 - ratio_pct
+        flags.append(
+            f"Outstanding value — asking price is ~{pct_under:.0f}% below estimated fair market value. Rare buying opportunity."
+        )
+    elif value_pillar and value_pillar.score >= 70:
+        flags.append("Price is at or below estimated comparable sales value — good value for the suburb.")
+
     if pillars["suburb_quality"].score >= 80:
         flags.append(
             "Above-average suburb quality indicators — solid capital growth, low vacancy, and brisk sales pace."
@@ -1046,6 +1228,7 @@ def generate_buyers_agent_summary(
     pillar_labels = {
         "location": "location quality",
         "affordability": "affordability",
+        "value": "price vs market value",
         "features": "property features",
         "suburb_quality": "suburb fundamentals",
         "investment": "investment metrics",
