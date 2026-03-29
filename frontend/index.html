@@ -8,6 +8,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <!-- reCAPTCHA v3 — only loaded when site key is configured -->
+    <script>
+      (function() {
+        var key = '__RECAPTCHA_SITE_KEY__';
+        if (key && key !== '__RECAPTCHA_SITE_KEY__') {
+          var s = document.createElement('script');
+          s.src = 'https://www.google.com/recaptcha/api.js?render=' + key;
+          s.async = true; s.defer = true;
+          document.head.appendChild(s);
+          window.__RECAPTCHA_SITE_KEY__ = key;
+        }
+      })();
+    </script>
   </head>
   <body class="bg-[#f7f5f9]">
     <div id="root"></div>

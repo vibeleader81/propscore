@@ -27,3 +27,14 @@ class AssessmentRequest(BaseModel):
         default="house",
         description="Property type: house | unit | apartment | townhouse",
     )
+
+    # Bot protection
+    recaptcha_token: Optional[str] = Field(
+        default=None, description="reCAPTCHA v3 token from frontend"
+    )
+    honeypot: Optional[str] = Field(
+        default=None, description="Must be empty — bots fill this field"
+    )
+    form_load_time: Optional[float] = Field(
+        default=None, description="Unix timestamp when form was loaded"
+    )

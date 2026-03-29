@@ -11,7 +11,12 @@ class Settings(BaseSettings):
     )
 
     GOOGLE_MAPS_API_KEY: str
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://propscore.vercel.app",
+        "https://propscore-vibeleader81.vercel.app",
+    ]
     MORTGAGE_RATE: float = 0.065
 
     # Domain API — OAuth2 client credentials (preferred, works for any property)
@@ -22,6 +27,10 @@ class Settings(BaseSettings):
     DOMAIN_API_KEY: Optional[str] = None
 
     ANTHROPIC_API_KEY: Optional[str] = None
+
+    # reCAPTCHA v3 — get keys at https://www.google.com/recaptcha/admin
+    # Leave unset in dev; enforcement is skipped when key is absent.
+    RECAPTCHA_SECRET_KEY: Optional[str] = None
 
 
 settings = Settings()

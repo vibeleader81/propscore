@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { AssessmentRequest, PropertyType } from '../../types'
 import AddressSearch from './AddressSearch'
 import { lookupProperty, type DomainPropertyData } from '../../api/client'
@@ -187,6 +187,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const [domainData, setDomainData] = useState<DomainPropertyData | null>(null)
   const [isLookingUp, setIsLookingUp] = useState(false)
   const [autoFilled, setAutoFilled] = useState(false)
+  const formLoadTime = useRef<number>(Date.now() / 1000)
 
   const applyDomainData = (data: DomainPropertyData) => {
     if (data.property_type) setPropertyType(data.property_type as PropertyType)
@@ -228,9 +229,29 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
+
+    // Get reCAPTCHA v3 token if available
+    let recaptchaToken: string | undefined
+    try {
+      const w = window as unknown as Record<string, unknown>
+      const siteKey = w.__RECAPTCHA_SITE_KEY__ as string | undefined
+      if (siteKey && typeof w.grecaptcha !== 'undefined') {
+        const grecaptcha = w.grecaptcha as {
+          execute: (key: string, opts: { action: string }) => Promise<string>
+          ready: (fn: () => void) => void
+        }
+        recaptchaToken = await new Promise<string>((resolve) => {
+          grecaptcha.ready(async () => {
+            const token = await grecaptcha.execute(siteKey, { action: 'assess' })
+            resolve(token)
+          })
+        })
+      }
+    } catch { /* reCAPTCHA unavailable — backend will skip check */ }
+
     onSubmit({
       address: address.trim(),
       price: Number(priceStr),
@@ -241,6 +262,8 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
       monthly_costs: Number(monthlyCostsStr) || 0,
       deposit: Number(depositStr) || 0,
       property_type: propertyType,
+      recaptcha_token: recaptchaToken,
+      form_load_time: formLoadTime.current,
     })
   }
 
@@ -532,6 +555,17 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
               <CurrencyInput label="Available Deposit" value={depositStr} onChange={setDepositStr} placeholder="200,000" helpText="Cash available — excludes stamp duty and purchase costs" />
 
             </div>
+          </div>
+
+          {/* ── Honeypot — hidden from humans, bots fill it ── */}
+          <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              onChange={() => {/* intentionally blank — bots fill this */}}
+            />
           </div>
 
           {/* ── SUBMIT ── */}

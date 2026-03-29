@@ -12,6 +12,8 @@ export interface AssessmentRequest {
   monthly_costs: number
   deposit?: number
   property_type: PropertyType
+  recaptcha_token?: string
+  form_load_time?: number
 }
 
 export interface PillarBreakdown {

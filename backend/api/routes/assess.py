@@ -1,6 +1,7 @@
 import asyncio
+import time
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from models.request import AssessmentRequest
 from models.response import (
     AssessmentResponse, AlternativeSuburb, NearbyPOI,
@@ -9,7 +10,7 @@ from models.response import (
     PropertyListing,
 )
 from services import google_maps, suburb_data, scoring, overpass, domain_api, risk_data
-from services import ai_analysis
+from services import ai_analysis, recaptcha
 from config import settings
 
 router = APIRouter()
@@ -27,7 +28,33 @@ def _parse_ai_dimension(raw: dict, key: str) -> Optional[AIDimensionScore]:
 
 
 @router.post("/assess", response_model=AssessmentResponse)
-async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
+async def assess_property(request: AssessmentRequest, req: Request) -> AssessmentResponse:
+
+    # ── Bot protection layer ──────────────────────────────────────────────
+
+    # 1. Honeypot — legitimate browsers never fill this hidden field
+    if request.honeypot:
+        raise HTTPException(status_code=400, detail="Invalid request.")
+
+    # 2. Timing check — reject submissions under 3 seconds (bot speed)
+    if request.form_load_time is not None:
+        elapsed = time.time() - request.form_load_time
+        if elapsed < 3.0:
+            raise HTTPException(status_code=429, detail="Please slow down.")
+
+    # 3. reCAPTCHA v3 — verify token with Google (skipped if key not set)
+    passed, score = await recaptcha.verify_token(
+        request.recaptcha_token,
+        settings.RECAPTCHA_SECRET_KEY,
+    )
+    if not passed:
+        raise HTTPException(
+            status_code=403,
+            detail="Bot detection triggered. Please refresh and try again."
+        )
+
+    # ── End bot protection ────────────────────────────────────────────────
+
     if not settings.GOOGLE_MAPS_API_KEY:
         raise HTTPException(status_code=503, detail="Google Maps API key is not configured.")
 
