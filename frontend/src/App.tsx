@@ -4,7 +4,7 @@ import { assessProperty } from './api/client'
 import Header from './components/layout/Header'
 import PropertyForm from './components/input/PropertyForm'
 import ResultsLayout from './components/results/ResultsLayout'
-import LoadingSpinner from './components/shared/LoadingSpinner'
+import LoadingProgress from './components/shared/LoadingProgress'
 
 export default function App() {
   const [result, setResult] = useState<AssessmentResponse | null>(null)
@@ -64,7 +64,7 @@ export default function App() {
         )}
 
         {/* States */}
-        {isLoading && <LoadingSpinner />}
+        {isLoading && <LoadingProgress address={submittedAddress} />}
 
         {!isLoading && !result && (
           <PropertyForm onSubmit={handleSubmit} isLoading={isLoading} />

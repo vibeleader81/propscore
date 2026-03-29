@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
-from api.routes import assess, geocode, alternatives
+from api.routes import assess, geocode, alternatives, property_lookup
 
 app = FastAPI(
     title="Palm Cove Property Assessor API",
@@ -32,6 +32,7 @@ app.add_middleware(
 app.include_router(assess.router, prefix="/api", tags=["Assessment"])
 app.include_router(geocode.router, prefix="/api", tags=["Geocode"])
 app.include_router(alternatives.router, prefix="/api", tags=["Alternatives"])
+app.include_router(property_lookup.router, prefix="/api", tags=["Property Lookup"])
 
 
 # ---------------------------------------------------------------------------

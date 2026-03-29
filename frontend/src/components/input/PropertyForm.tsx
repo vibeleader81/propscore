@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { AssessmentRequest, PropertyType } from '../../types'
 import AddressSearch from './AddressSearch'
+import { lookupProperty, type DomainPropertyData } from '../../api/client'
 
 interface PropertyFormProps {
   onSubmit: (data: AssessmentRequest) => void
@@ -107,6 +108,31 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   const [monthlyCostsStr, setMonthlyCostsStr] = useState('')
   const [depositStr, setDepositStr] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [domainData, setDomainData] = useState<DomainPropertyData | null>(null)
+  const [isLookingUp, setIsLookingUp] = useState(false)
+
+  const handleAddressSelected = async (selectedAddress: string) => {
+    setAddress(selectedAddress)
+    setDomainData(null)
+    if (!selectedAddress || selectedAddress.length < 10) return
+    setIsLookingUp(true)
+    try {
+      const data = await lookupProperty(selectedAddress)
+      if (data.found) setDomainData(data)
+    } catch { /* silent */ }
+    finally { setIsLookingUp(false) }
+  }
+
+  const applyDomainAutofill = () => {
+    if (!domainData) return
+    if (domainData.property_type) setPropertyType(domainData.property_type as PropertyType)
+    if (domainData.bedrooms != null) setBedrooms(domainData.bedrooms)
+    if (domainData.bathrooms != null) setBathrooms(domainData.bathrooms)
+    if (domainData.parking != null) setParking(domainData.parking)
+    if (domainData.land_size_sqm != null) setLandSizeStr(String(Math.round(domainData.land_size_sqm)))
+    if (domainData.year_built != null) setYearBuiltStr(String(domainData.year_built))
+    if (domainData.price != null) setPriceStr(String(Math.round(domainData.price)))
+  }
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -171,12 +197,57 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Property Address <span className="text-rose-500">*</span>
               </label>
-              <AddressSearch value={address} onChange={setAddress} />
+              <AddressSearch value={address} onChange={handleAddressSelected} />
               {errors.address && (
                 <p className="mt-1.5 text-xs text-rose-600 flex items-center gap-1">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                   {errors.address}
                 </p>
+              )}
+              {/* Domain autofill card */}
+              {isLookingUp && (
+                <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                  <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin" />
+                  Looking up on Domain.com.au...
+                </div>
+              )}
+              {domainData?.found && !isLookingUp && (
+                <div className="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-emerald-600 text-xs font-bold uppercase tracking-wide">✓ Found on Domain.com.au</span>
+                      </div>
+                      {domainData.headline && (
+                        <p className="text-xs text-slate-600 truncate mb-1">{domainData.headline}</p>
+                      )}
+                      <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+                        {domainData.bedrooms != null && <span>🛏 {domainData.bedrooms} bed</span>}
+                        {domainData.bathrooms != null && <span>🚿 {domainData.bathrooms} bath</span>}
+                        {domainData.parking != null && <span>🚗 {domainData.parking} car</span>}
+                        {domainData.land_size_sqm != null && <span>📐 {Math.round(domainData.land_size_sqm)}m²</span>}
+                        {domainData.display_price && <span>💰 {domainData.display_price}</span>}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={applyDomainAutofill}
+                      className="flex-shrink-0 px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
+                    >
+                      Autofill
+                    </button>
+                  </div>
+                  {domainData.listing_url && (
+                    <a
+                      href={domainData.listing_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 block text-xs text-emerald-600 hover:underline"
+                    >
+                      View listing on Domain.com.au →
+                    </a>
+                  )}
+                </div>
               )}
             </div>
 
