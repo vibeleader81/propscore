@@ -84,7 +84,7 @@ export default function DimensionScores({ scores, compositeScore }: DimensionSco
                     {dim.mono}
                   </span>
                   <div>
-                    <div className="text-sm font-semibold" style={{ color: '#1e293b', fontFamily: "'DM Sans', sans-serif" }}>
+                    <div className="text-sm font-semibold" style={{ color: '#1e293b', fontFamily: "'Inter', sans-serif" }}>
                       {dim.label}
                     </div>
                     <div className="text-xs mt-0.5" style={{ color: '#94a3b8', fontFamily: "'DM Mono', monospace" }}>
@@ -95,7 +95,7 @@ export default function DimensionScores({ scores, compositeScore }: DimensionSco
                 <div className="flex-shrink-0 text-right">
                   <span
                     className="font-extrabold leading-none"
-                    style={{ fontSize: 22, color: scoreColor(data.score, dim.max), fontFamily: "'Fraunces', serif" }}
+                    style={{ fontSize: 22, color: scoreColor(data.score, dim.max), fontFamily: "'Playfair Display', serif" }}
                   >
                     {data.score}
                   </span>
@@ -133,7 +133,7 @@ export default function DimensionScores({ scores, compositeScore }: DimensionSco
         <span className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>
           Composite Score
         </span>
-        <span style={{ fontFamily: "'Fraunces', serif" }}>
+        <span style={{ fontFamily: "'Playfair Display', serif" }}>
           <span className="font-extrabold" style={{ fontSize: 28, color: '#2892d7' }}>{compositeScore}</span>
           <span className="text-sm" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>/100</span>
         </span>

@@ -20,7 +20,7 @@ function SectionLabel({ number, title }: { number: string; title: string }) {
     <div style={{ padding: '18px 28px 16px', borderBottom: '1px solid rgba(27,67,83,0.07)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         <span style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Playfair Display', serif",
           fontSize: '32px',
           fontWeight: 300,
           color: 'rgba(27,67,83,0.15)',
@@ -45,7 +45,7 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   return (
     <label style={{
       display: 'block',
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "'Inter', sans-serif",
       fontSize: '12px',
       fontWeight: 600,
       color: '#1b4353',
@@ -64,7 +64,7 @@ const inputStyle: React.CSSProperties = {
   padding: '11px 14px',
   border: '1px solid rgba(27,67,83,0.15)',
   borderRadius: '10px',
-  fontFamily: "'DM Sans', sans-serif",
+  fontFamily: "'Inter', sans-serif",
   fontSize: '14px',
   color: '#0d1e2c',
   background: 'white',
@@ -128,7 +128,7 @@ function CurrencyInput({
           onBlur={() => setFocused(false)}
         />
       </div>
-      {helpText && <p style={{ marginTop: '5px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#6daedb' }}>{helpText}</p>}
+      {helpText && <p style={{ marginTop: '5px', fontFamily: "'Inter', sans-serif", fontSize: '11px', color: '#6daedb' }}>{helpText}</p>}
     </div>
   )
 }
@@ -157,7 +157,7 @@ function NumberSelector({
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <button type="button" onClick={() => onChange(Math.max(min, value - 1))} style={btnStyle(value <= min)}>−</button>
         <span style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Playfair Display', serif",
           fontSize: '22px',
           fontWeight: 500,
           color: '#1b4353',
@@ -262,7 +262,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
   }
 
   const errorStyle: React.CSSProperties = {
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     fontSize: '11px',
     color: '#e53e3e',
     marginTop: '5px',
@@ -343,7 +343,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                     {/* Property specs */}
                     <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {domainData.headline && (
-                        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 600, color: '#0e3252', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', fontWeight: 600, color: '#0e3252', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {domainData.headline}
                         </p>
                       )}
@@ -379,7 +379,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                               <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
                                 AVM Estimate
                               </div>
-                              <div style={{ fontFamily: "'Fraunces', serif", fontSize: '14px', fontWeight: 700, color: '#1b4353' }}>
+                              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '14px', fontWeight: 700, color: '#1b4353' }}>
                                 {domainData.display_price}
                               </div>
                               {domainData.estimated_value_low != null && domainData.estimated_value_high != null && (
@@ -394,7 +394,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                               <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#6daedb', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
                                 Last Sold
                               </div>
-                              <div style={{ fontFamily: "'Fraunces', serif", fontSize: '14px', fontWeight: 700, color: '#1b4353' }}>
+                              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '14px', fontWeight: 700, color: '#1b4353' }}>
                                 ${domainData.last_sold_price.toLocaleString('en-AU')}
                               </div>
                               {domainData.last_sold_date && (
@@ -427,7 +427,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                         border: propertyType === pt.value ? '1px solid #1b4353' : '1px solid rgba(27,67,83,0.15)',
                         background: propertyType === pt.value ? '#1b4353' : 'white',
                         color: propertyType === pt.value ? 'white' : '#2a5f7a',
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: "'Inter', sans-serif",
                         fontSize: '13px',
                         fontWeight: propertyType === pt.value ? 600 : 400,
                         cursor: 'pointer',
@@ -498,7 +498,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                 border: '1px solid rgba(27,67,83,0.07)',
               }}>
                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#5ba3d0', marginTop: '5px', flexShrink: 0 }} />
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6daedb', lineHeight: 1.55 }}>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', color: '#6daedb', lineHeight: 1.55 }}>
                   Used to assess affordability and mortgage stress. Your data stays in your browser and is never stored.
                 </p>
               </div>
@@ -529,7 +529,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
               color: isLoading ? '#6daedb' : '#ffffff',
               border: 'none',
               borderRadius: '16px',
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               fontSize: '15px',
               fontWeight: 700,
               letterSpacing: '0.02em',

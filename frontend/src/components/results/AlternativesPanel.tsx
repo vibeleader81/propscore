@@ -38,7 +38,7 @@ function AlternativeCard({ alt }: { alt: AlternativeSuburb }) {
       <div className="px-5 py-4 border-b" style={{ borderColor: 'rgba(40,146,215,0.1)' }}>
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="font-bold text-white leading-tight" style={{ fontFamily: "'Fraunces', serif", fontSize: 16 }}>
+            <p className="font-bold text-white leading-tight" style={{ fontFamily: "'Playfair Display', serif", fontSize: 16 }}>
               {alt.suburb}
             </p>
             <p className="text-xs mt-0.5" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>
@@ -53,25 +53,25 @@ function AlternativeCard({ alt }: { alt: AlternativeSuburb }) {
       <div className="px-5 py-4 grid grid-cols-2 gap-3 border-b" style={{ borderColor: 'rgba(40,146,215,0.1)' }}>
         <div>
           <p className="text-xs mb-1" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>Median Price</p>
-          <p className="font-extrabold text-white" style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>
+          <p className="font-extrabold text-white" style={{ fontFamily: "'Playfair Display', serif", fontSize: 15 }}>
             {formatShortCurrency(alt.median_price)}
           </p>
         </div>
         <div>
           <p className="text-xs mb-1" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>10yr Growth</p>
-          <p className="font-bold" style={{ color: '#2892d7', fontFamily: "'Fraunces', serif", fontSize: 15 }}>
+          <p className="font-bold" style={{ color: '#2892d7', fontFamily: "'Playfair Display', serif", fontSize: 15 }}>
             {formatPercent(alt.ten_year_growth)} pa
           </p>
         </div>
         <div>
           <p className="text-xs mb-1" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>Gross Yield</p>
-          <p className="font-bold text-white" style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>
+          <p className="font-bold text-white" style={{ fontFamily: "'Playfair Display', serif", fontSize: 15 }}>
             {formatPercent(alt.gross_yield)}
           </p>
         </div>
         <div>
           <p className="text-xs mb-1" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>Distance</p>
-          <p className="font-bold text-white" style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>
+          <p className="font-bold text-white" style={{ fontFamily: "'Playfair Display', serif", fontSize: 15 }}>
             {alt.distance_km.toFixed(1)}km
           </p>
         </div>
@@ -89,7 +89,7 @@ function AlternativeCard({ alt }: { alt: AlternativeSuburb }) {
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl text-xs font-bold transition-opacity hover:opacity-80"
-          style={{ background: '#2892d7', color: '#173753', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.02em' }}
+          style={{ background: '#2892d7', color: '#173753', fontFamily: "'Inter', sans-serif", letterSpacing: '0.02em' }}
         >
           Search on Domain
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

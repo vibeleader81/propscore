@@ -124,7 +124,7 @@ export default function App() {
               <h1
                 className="animate-fade-up-delay-1"
                 style={{
-                  fontFamily: "'Fraunces', serif",
+                  fontFamily: "'Playfair Display', serif",
                   fontSize: 'clamp(52px, 9vw, 88px)',
                   fontWeight: 700,
                   color: 'white',
@@ -141,7 +141,7 @@ export default function App() {
               <p
                 className="animate-fade-up-delay-2"
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: 'clamp(16px, 2.5vw, 19px)',
                   color: 'rgba(109,174,219,0.85)',
                   lineHeight: 1.65,
@@ -162,7 +162,7 @@ export default function App() {
                   <span
                     key={f.label}
                     style={{
-                      fontFamily: "'DM Sans', sans-serif",
+                      fontFamily: "'Inter', sans-serif",
                       fontSize: '12px',
                       fontWeight: 400,
                       color: 'rgba(255,255,255,0.55)',
@@ -205,9 +205,9 @@ export default function App() {
                 </svg>
               </div>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: '#c53030', marginBottom: '4px', fontSize: '14px' }}>Assessment Failed</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", color: '#742a2a', fontSize: '13px', lineHeight: 1.5 }}>{error}</div>
-                <button onClick={() => setError(null)} style={{ marginTop: '10px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#c53030', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, color: '#c53030', marginBottom: '4px', fontSize: '14px' }}>Assessment Failed</div>
+                <div style={{ fontFamily: "'Inter', sans-serif", color: '#742a2a', fontSize: '13px', lineHeight: 1.5 }}>{error}</div>
+                <button onClick={() => setError(null)} style={{ marginTop: '10px', fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 600, color: '#c53030', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
                   Try again
                 </button>
               </div>

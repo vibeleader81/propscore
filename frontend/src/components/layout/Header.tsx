@@ -48,7 +48,7 @@ export default function Header({ hasResult, onReset }: HeaderProps) {
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '9px' }}>
               <span
                 style={{
-                  fontFamily: "'Fraunces', serif",
+                  fontFamily: "'Playfair Display', serif",
                   fontSize: '22px',
                   fontWeight: 600,
                   color: 'white',
@@ -99,7 +99,7 @@ export default function Header({ hasResult, onReset }: HeaderProps) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 fontSize: '13px',
                 fontWeight: 500,
                 color: 'rgba(255,255,255,0.65)',

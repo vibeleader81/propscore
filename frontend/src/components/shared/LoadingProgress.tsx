@@ -234,7 +234,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
             ASSESSING
           </div>
           <h1 style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Playfair Display', serif",
             fontSize: 'clamp(18px, 4vw, 24px)',
             fontWeight: 500,
             color: 'rgba(255,255,255,0.92)',
@@ -298,7 +298,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
 
           {/* Full stage label */}
           <div style={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'Inter', sans-serif",
             fontSize: '14px',
             color: 'rgba(255,255,255,0.45)',
           }}>
@@ -377,7 +377,7 @@ export default function LoadingProgress({ address }: LoadingProgressProps) {
               </span>
             </div>
             <p style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               fontSize: '13px', color: 'rgba(109,174,219,0.7)', lineHeight: 1.65, marginBottom: 10,
             }}>
               Evaluating 10 property dimensions — orientation, noise, flood risk, zoning,

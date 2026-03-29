@@ -42,13 +42,13 @@ export default function ScorePillar({ title, score, sub_scores, insights, icon }
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <span className="text-base">{icon}</span>
-            <span className="font-bold text-sm" style={{ color: '#1e293b', fontFamily: "'DM Sans', sans-serif" }}>
+            <span className="font-bold text-sm" style={{ color: '#1e293b', fontFamily: "'Inter', sans-serif" }}>
               {title}
             </span>
           </div>
           <span
             className="font-extrabold"
-            style={{ fontSize: 18, color: scoreColor(score), fontFamily: "'Fraunces', serif" }}
+            style={{ fontSize: 18, color: scoreColor(score), fontFamily: "'Playfair Display', serif" }}
           >
             {score}
             <span className="text-xs font-normal" style={{ color: '#94a3b8', fontFamily: "'DM Mono', monospace" }}>/100</span>

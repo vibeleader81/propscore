@@ -47,7 +47,7 @@ function ListingCard({ listing }: { listing: PropertyListing }) {
             >
               <span
                 className="text-base font-extrabold text-white"
-                style={{ fontFamily: "'Fraunces', serif" }}
+                style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {listing.display_price || formatCurrency(listing.price!)}
               </span>
@@ -63,7 +63,7 @@ function ListingCard({ listing }: { listing: PropertyListing }) {
           {hasPrice && (
             <span
               className="absolute font-extrabold"
-              style={{ color: '#173753', fontFamily: "'Fraunces', serif", fontSize: 18 }}
+              style={{ color: '#173753', fontFamily: "'Playfair Display', serif", fontSize: 18 }}
             >
               {listing.display_price || formatCurrency(listing.price!)}
             </span>
@@ -100,7 +100,7 @@ function ListingCard({ listing }: { listing: PropertyListing }) {
             style={{
               background: '#2892d7',
               color: '#ffffff',
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               letterSpacing: '0.02em',
             }}
           >

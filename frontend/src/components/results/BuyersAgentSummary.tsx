@@ -11,7 +11,7 @@ export default function BuyersAgentSummary({ summary }: BuyersAgentSummaryProps)
       {/* Large quote mark decoration */}
       <div
         className="absolute top-4 right-6 leading-none select-none pointer-events-none"
-        style={{ fontSize: 80, color: '#f1f5f9', fontFamily: "'Fraunces', serif" }}
+        style={{ fontSize: 80, color: '#f1f5f9', fontFamily: "'Playfair Display', serif" }}
       >
         "
       </div>
@@ -26,7 +26,7 @@ export default function BuyersAgentSummary({ summary }: BuyersAgentSummaryProps)
           </svg>
         </div>
         <div>
-          <p className="text-sm font-bold" style={{ color: '#1e293b', fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-sm font-bold" style={{ color: '#1e293b', fontFamily: "'Inter', sans-serif" }}>
             AI Buyers Agent
           </p>
           <p className="text-xs" style={{ color: '#6daedb', fontFamily: "'DM Mono', monospace" }}>

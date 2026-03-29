@@ -40,7 +40,7 @@ function SectionTitle({ children, mono }: { children: React.ReactNode; mono?: st
           position: 'absolute',
           top: -28,
           left: -8,
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Playfair Display', serif",
           fontSize: 88,
           lineHeight: 1,
           color: 'rgba(40,146,215,0.045)',
@@ -65,7 +65,7 @@ function SectionTitle({ children, mono }: { children: React.ReactNode; mono?: st
           </span>
         )}
         <h2 style={{
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'Inter', sans-serif",
           fontSize: 11,
           fontWeight: 700,
           color: C.mid,
@@ -111,7 +111,7 @@ function StatCard({ label, value, sub, highlight, accent }: {
         {label}
       </p>
       <p style={{
-        fontFamily: "'Fraunces', serif",
+        fontFamily: "'Playfair Display', serif",
         fontSize: 20,
         fontWeight: 700,
         lineHeight: 1,
@@ -217,7 +217,7 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h1 style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Playfair Display', serif",
                 fontSize: 'clamp(20px, 3.5vw, 28px)',
                 fontWeight: 600,
                 color: C.white,
@@ -347,7 +347,7 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
             {/* Decorative quote mark */}
             <div style={{
               position: 'absolute', top: 16, right: 20,
-              fontFamily: "'Fraunces', serif",
+              fontFamily: "'Playfair Display', serif",
               fontSize: 100,
               lineHeight: 1,
               color: 'rgba(40,146,215,0.05)',
@@ -358,7 +358,7 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
             </div>
             {ai.verdict.split('\n\n').filter(p => p.trim()).map((para, i) => (
               <p key={i} style={{
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 fontSize: 14,
                 lineHeight: 1.75,
                 color: C.slate,
@@ -450,7 +450,7 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
                     fontSize: 11, color: '#b45309', flexShrink: 0, marginTop: 1,
                   }}>›</span>
                   <span style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: "'Inter', sans-serif",
                     fontSize: 13, color: '#78350f', lineHeight: 1.5,
                   }}>
                     {gap}
@@ -490,7 +490,7 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
           }} />
         </div>
         <p style={{
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'Inter', sans-serif",
           fontSize: 11, color: C.muted, lineHeight: 1.6,
           maxWidth: 480, textAlign: 'center', margin: 0,
         }}>

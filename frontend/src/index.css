@@ -14,7 +14,7 @@
 
 @layer base {
   body {
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     background: var(--page-bg);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -79,7 +79,7 @@
 }
 
 @layer utilities {
-  .font-fraunces { font-family: 'Fraunces', serif; }
+  .font-playfair { font-family: 'Playfair Display', serif; }
   .font-mono-dm  { font-family: 'DM Mono', monospace; }
 
   .animate-fade-up          { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) both; }

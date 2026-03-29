@@ -103,7 +103,7 @@ export default function ScoreGauge({ score, band }: ScoreGaugeProps) {
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span
               className="tabular-nums leading-none"
-              style={{ fontSize: 52, fontWeight: 800, color: arcColor, fontFamily: "'Fraunces', serif" }}
+              style={{ fontSize: 52, fontWeight: 800, color: arcColor, fontFamily: "'Playfair Display', serif" }}
             >
               {displayScore}
             </span>
@@ -116,7 +116,7 @@ export default function ScoreGauge({ score, band }: ScoreGaugeProps) {
         {/* Band */}
         <div
           className="mt-1 mb-1 px-4 py-1.5 rounded-lg font-bold text-sm"
-          style={{ background: 'rgba(40,146,215,0.12)', color: '#2892d7', border: '1px solid rgba(40,146,215,0.25)', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.03em' }}
+          style={{ background: 'rgba(40,146,215,0.12)', color: '#2892d7', border: '1px solid rgba(40,146,215,0.25)', fontFamily: "'Inter', sans-serif", letterSpacing: '0.03em' }}
         >
           {band}
         </div>
