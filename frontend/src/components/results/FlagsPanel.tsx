@@ -7,62 +7,67 @@ export default function FlagsPanel({ redFlags, greenFlags }: FlagsPanelProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Red Flags */}
-      <div className="bg-rose-50 border border-rose-100 rounded-2xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-lg">🚨</span>
-          <h3 className="font-bold text-rose-800 text-sm uppercase tracking-wide">Red Flags</h3>
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ background: '#fff5f5', border: '1px solid #fecaca', borderTop: '3px solid #f43f5e' }}
+      >
+        <div className="px-5 py-3.5 flex items-center gap-2" style={{ background: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
+          <span className="text-sm">🚩</span>
+          <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: '#991b1b', fontFamily: "'DM Mono', monospace" }}>
+            Red Flags
+          </h3>
           {redFlags.length > 0 && (
-            <span className="ml-auto bg-rose-200 text-rose-800 text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="ml-auto text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#fee2e2', color: '#991b1b', fontFamily: "'DM Mono', monospace" }}>
               {redFlags.length}
             </span>
           )}
         </div>
-        {redFlags.length === 0 ? (
-          <div className="flex items-center gap-2 text-rose-400 text-sm">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            No major issues found
-          </div>
-        ) : (
-          <ul className="space-y-2.5">
-            {redFlags.map((flag, i) => (
-              <li key={i} className="flex items-start gap-2.5">
-                <svg className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <span className="text-sm text-rose-800 leading-relaxed">{flag}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="px-5 py-4">
+          {redFlags.length === 0 ? (
+            <p className="text-xs italic" style={{ color: '#fca5a5' }}>No major issues found</p>
+          ) : (
+            <ul className="space-y-2.5">
+              {redFlags.map((flag, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs leading-relaxed" style={{ color: '#7f1d1d' }}>
+                  <span className="mt-0.5 flex-shrink-0 font-mono">›</span>
+                  {flag}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       {/* Green Flags */}
-      <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-lg">✅</span>
-          <h3 className="font-bold text-emerald-800 text-sm uppercase tracking-wide">Green Flags</h3>
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ background: '#f7fdf0', border: '1px solid #bbf7d0', borderTop: '3px solid #c9f299' }}
+      >
+        <div className="px-5 py-3.5 flex items-center gap-2" style={{ background: '#f0fdf4', borderBottom: '1px solid #bbf7d0' }}>
+          <span className="text-sm">✅</span>
+          <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: '#166534', fontFamily: "'DM Mono', monospace" }}>
+            Green Flags
+          </h3>
           {greenFlags.length > 0 && (
-            <span className="ml-auto bg-emerald-200 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="ml-auto text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#bbf7d0', color: '#166534', fontFamily: "'DM Mono', monospace" }}>
               {greenFlags.length}
             </span>
           )}
         </div>
-        {greenFlags.length === 0 ? (
-          <div className="text-emerald-500 text-sm">No standout positives identified</div>
-        ) : (
-          <ul className="space-y-2.5">
-            {greenFlags.map((flag, i) => (
-              <li key={i} className="flex items-start gap-2.5">
-                <svg className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span className="text-sm text-emerald-800 leading-relaxed">{flag}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="px-5 py-4">
+          {greenFlags.length === 0 ? (
+            <p className="text-xs italic" style={{ color: '#86efac' }}>No standout positives identified</p>
+          ) : (
+            <ul className="space-y-2.5">
+              {greenFlags.map((flag, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs leading-relaxed" style={{ color: '#14532d' }}>
+                  <span className="mt-0.5 flex-shrink-0 font-mono">›</span>
+                  {flag}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -7,32 +7,46 @@ interface NearbyPOIsProps {
 
 interface POIColumnProps {
   title: string
-  icon: string
+  symbol: string
   items: NearbyPOI[]
   accentColor: string
+  headerBg: string
+  borderColor: string
 }
 
-function POIColumn({ title, icon, items, accentColor }: POIColumnProps) {
+function POIColumn({ title, symbol, items, accentColor, headerBg, borderColor }: POIColumnProps) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-      <div className={`px-5 py-3.5 border-b border-slate-100 flex items-center gap-2 ${accentColor}`}>
-        <span className="text-base">{icon}</span>
-        <h3 className="font-bold text-sm">{title}</h3>
-        <span className="ml-auto text-xs font-medium opacity-70">{items.length} found</span>
+    <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: `1px solid #f1f5f9`, borderTop: `3px solid ${borderColor}`, boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
+      <div className="px-5 py-3.5 flex items-center gap-2" style={{ background: headerBg, borderBottom: '1px solid #f1f5f9' }}>
+        <span className="text-sm">{symbol}</span>
+        <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: accentColor, fontFamily: "'DM Mono', monospace" }}>
+          {title}
+        </h3>
+        <span className="ml-auto text-xs" style={{ color: accentColor, opacity: 0.6, fontFamily: "'DM Mono', monospace" }}>
+          {items.length} found
+        </span>
       </div>
-      <div className="divide-y divide-slate-50">
+      <div className="divide-y" style={{ borderColor: '#f8fafc' }}>
         {items.length === 0 ? (
-          <p className="px-5 py-4 text-sm text-slate-400 italic">None found nearby</p>
+          <p className="px-5 py-4 text-xs italic" style={{ color: '#94a3b8' }}>None found nearby</p>
         ) : (
-          items.slice(0, 6).map((poi, i) => (
+          items.slice(0, 5).map((poi, i) => (
             <div key={i} className="px-5 py-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-700 truncate">{poi.name}</p>
+                <p className="text-sm font-medium truncate" style={{ color: '#334155' }}>{poi.name}</p>
                 {poi.type && (
-                  <p className="text-xs text-slate-400 truncate capitalize">{poi.type.replace(/_/g, ' ')}</p>
+                  <p className="text-xs truncate capitalize" style={{ color: '#94a3b8', fontFamily: "'DM Mono', monospace" }}>
+                    {poi.type.replace(/_/g, ' ')}
+                  </p>
                 )}
               </div>
-              <span className={`text-xs font-bold flex-shrink-0 ${getDistanceColor(poi.distance_m)}`}>
+              <span
+                className="text-xs font-bold flex-shrink-0"
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  color: poi.distance_m < 500 ? '#c9f299' : poi.distance_m < 1000 ? '#8fa998' : '#94a3b8',
+                }}
+              >
                 {formatDistance(poi.distance_m)}
               </span>
             </div>
@@ -48,21 +62,27 @@ export default function NearbyPOIs({ pois }: NearbyPOIsProps) {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <POIColumn
         title="Schools"
-        icon="🎓"
+        symbol="🎓"
         items={pois.schools}
-        accentColor="bg-violet-50 text-violet-800"
+        accentColor="#4f345a"
+        headerBg="#faf7fb"
+        borderColor="#8fa998"
       />
       <POIColumn
         title="Transport"
-        icon="🚉"
+        symbol="🚉"
         items={pois.transport}
-        accentColor="bg-blue-50 text-blue-800"
+        accentColor="#4f345a"
+        headerBg="#f7f9f8"
+        borderColor="#4f345a"
       />
       <POIColumn
         title="Parks & Recreation"
-        icon="🌳"
+        symbol="🌳"
         items={pois.parks}
-        accentColor="bg-emerald-50 text-emerald-800"
+        accentColor="#4f345a"
+        headerBg="#f7fdf0"
+        borderColor="#c9f299"
       />
     </div>
   )

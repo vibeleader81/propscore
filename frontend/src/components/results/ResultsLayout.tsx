@@ -14,20 +14,43 @@ interface ResultsLayoutProps {
   address: string
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function SectionTitle({ children, mono }: { children: React.ReactNode; mono?: string }) {
   return (
-    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-      {children}
-    </h2>
+    <div className="flex items-baseline gap-4 mb-5">
+      {mono && (
+        <span className="font-mono text-xs tracking-[0.2em] uppercase opacity-30 flex-shrink-0" style={{ color: '#4f345a' }}>
+          {mono}
+        </span>
+      )}
+      <h2 className="text-base font-bold uppercase tracking-widest" style={{ color: '#4f345a', fontFamily: "'DM Sans', sans-serif" }}>
+        {children}
+      </h2>
+      <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, #c9f299 0%, transparent 100%)' }} />
+    </div>
   )
 }
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function StatCard({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-100 shadow-sm px-5 py-4 text-center">
-      <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">{label}</p>
-      <p className="text-xl font-extrabold text-slate-800">{value}</p>
-      {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+    <div
+      className="rounded-xl px-5 py-4 text-center"
+      style={{
+        background: highlight ? 'linear-gradient(135deg, #4f345a 0%, #3a2444 100%)' : 'white',
+        borderTop: `3px solid ${highlight ? '#c9f299' : '#e2e8f0'}`,
+        boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
+      }}
+    >
+      <p className="text-xs uppercase tracking-widest mb-1" style={{ color: highlight ? '#8fa998' : '#94a3b8', fontFamily: "'DM Mono', monospace" }}>
+        {label}
+      </p>
+      <p className="text-xl font-extrabold leading-none" style={{ color: highlight ? '#c9f299' : '#1e293b', fontFamily: "'Fraunces', serif" }}>
+        {value}
+      </p>
+      {sub && (
+        <p className="text-xs mt-1.5" style={{ color: highlight ? '#8fa998' : '#94a3b8', fontFamily: "'DM Mono', monospace" }}>
+          {sub}
+        </p>
+      )}
     </div>
   )
 }
@@ -36,97 +59,106 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
   const ai = result.ai_analysis
   const hasAI = ai?.available === true
 
-  // Use AI composite score for the gauge if available
   const displayScore = hasAI && ai.composite_score != null ? ai.composite_score : result.overall_score
   const displayBand = hasAI && ai.has_critical_veto ? 'Not Recommended' : result.band
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-[fadeIn_0.4s_ease-out]">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-[fadeIn_0.4s_ease-out]">
 
-      {/* Address + band hero */}
-      <div className="bg-[#0f172a] rounded-2xl px-6 py-6 text-white">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      {/* Address hero */}
+      <div
+        className="rounded-2xl px-7 py-7 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #3a2444 0%, #4f345a 60%, #2d1a36 100%)' }}
+      >
+        {/* Blueprint grid overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle fill='%23c9f299' cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
+        <div className="relative flex flex-col sm:flex-row sm:items-start justify-between gap-5">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-xs text-slate-400 uppercase tracking-wider">Assessed Property</span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs uppercase tracking-[0.2em]" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>
+                ◈ Assessed Property
+              </span>
+              {hasAI && (
+                <span
+                  className="px-2 py-0.5 rounded text-xs font-semibold"
+                  style={{ background: 'rgba(201,242,153,0.15)', color: '#c9f299', border: '1px solid rgba(201,242,153,0.3)', fontFamily: "'DM Mono', monospace" }}
+                >
+                  AI Expert
+                </span>
+              )}
             </div>
-            <h1 className="text-xl font-bold text-white leading-snug truncate">{address}</h1>
-            <p className="text-sm text-slate-400 mt-1">
-              {result.suburb}, {result.state} {result.postcode}
+            <h1 className="text-2xl font-bold text-white leading-snug truncate" style={{ fontFamily: "'Fraunces', serif" }}>
+              {address}
+            </h1>
+            <p className="text-sm mt-1" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>
+              {result.suburb} · {result.state} {result.postcode}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {hasAI && (
-              <span className="px-2 py-1 rounded-lg bg-blue-900 text-blue-300 text-xs font-semibold">
-                🤖 AI Analysis
-              </span>
-            )}
-            <span className={`px-4 py-2 rounded-xl text-sm font-bold shadow ${getBandColor(displayBand)}`}>
-              {displayBand}
-            </span>
+          <div
+            className="px-5 py-2 rounded-lg font-bold text-sm flex-shrink-0 self-start sm:self-center"
+            style={{ background: '#c9f299', color: '#3a2444', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.02em' }}
+          >
+            {displayBand}
           </div>
         </div>
       </div>
 
-      {/* Score gauge + financial snapshot */}
+      {/* Score gauge + stat cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
         <div className="lg:col-span-1 flex justify-center">
           <ScoreGauge score={displayScore} band={displayBand} />
         </div>
         <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
           <StatCard label="Monthly Repayment" value={formatCurrency(result.monthly_repayment)} sub="estimated P&I" />
-          <StatCard label="Borrowing Capacity" value={formatCurrency(result.borrowing_capacity)} sub="based on your income" />
-          <StatCard label="Overall Score" value={`${Math.round(displayScore)} / 100`} sub={hasAI ? 'AI expert score' : 'composite score'} />
+          <StatCard label="Borrowing Capacity" value={formatCurrency(result.borrowing_capacity)} sub="based on income" />
+          <StatCard label="Expert Score" value={`${Math.round(displayScore)}/100`} sub={hasAI ? 'AI composite' : 'composite'} highlight />
           {result.deposit > 0 && (
-            <StatCard label="Deposit" value={formatCurrency(result.deposit)} sub={result.lmi_required ? '⚠️ LMI required' : '✅ No LMI needed'} />
+            <StatCard label="Deposit" value={formatCurrency(result.deposit)} sub={result.lmi_required ? '⚠ LMI required' : '✓ No LMI'} />
           )}
           {result.deposit > 0 && (
-            <StatCard label="LVR" value={`${result.lvr_pct.toFixed(1)}%`} sub={result.lmi_required ? 'above 80% — adds cost' : 'below 80% — clean'} />
+            <StatCard label="LVR" value={`${result.lvr_pct.toFixed(1)}%`} sub={result.lmi_required ? 'above 80%' : 'below 80% — clean'} />
           )}
-          <StatCard label="Location" value={`${result.pillars.location.score} / 100`} sub="location score" />
+          <StatCard label="Location Score" value={`${result.pillars.location.score}/100`} sub="location pillar" />
         </div>
       </div>
 
-      {/* AI Verdict */}
-      {hasAI && ai.verdict ? (
-        <div>
-          <SectionTitle>
-            <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xs">🤖</span>
-            Expert Agent Verdict
-          </SectionTitle>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      {/* AI Verdict / Buyers Agent */}
+      <div>
+        <SectionTitle mono="01">
+          {hasAI && ai.verdict ? 'Expert Agent Verdict' : 'Buyers Agent Perspective'}
+        </SectionTitle>
+        {hasAI && ai.verdict ? (
+          <div
+            className="rounded-2xl p-7 relative overflow-hidden"
+            style={{ background: 'white', borderLeft: '4px solid #8fa998', boxShadow: '0 2px 12px rgba(79,52,90,0.06)' }}
+          >
+            <div
+              className="absolute top-5 right-6 font-serif text-7xl leading-none select-none pointer-events-none"
+              style={{ color: '#f1f5f9', fontFamily: "'Fraunces', serif" }}
+            >
+              "
+            </div>
             {ai.verdict.split('\n\n').filter(p => p.trim()).map((para, i) => (
-              <p key={i} className={`text-sm text-slate-700 leading-relaxed ${i > 0 ? 'mt-4' : ''}`}>
+              <p key={i} className={`text-sm leading-relaxed ${i > 0 ? 'mt-4' : ''}`} style={{ color: '#334155' }}>
                 {para}
               </p>
             ))}
           </div>
-        </div>
-      ) : (
-        <div>
-          <SectionTitle>
-            <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xs">🤖</span>
-            Buyers Agent Perspective
-          </SectionTitle>
+        ) : (
           <BuyersAgentSummary summary={result.buyers_agent_summary} />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Flags */}
       <div>
-        <SectionTitle>
-          <span className="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center text-xs">⚑</span>
-          Risk & Opportunity Flags
-        </SectionTitle>
+        <SectionTitle mono="02">Risk & Opportunity Flags</SectionTitle>
         {hasAI && ai.flags.length > 0 ? (
-          <ExpertFlagsPanel
-            flags={ai.flags}
-            hasVeto={ai.has_critical_veto}
-            vetoReasons={ai.veto_reasons}
-          />
+          <ExpertFlagsPanel flags={ai.flags} hasVeto={ai.has_critical_veto} vetoReasons={ai.veto_reasons} />
         ) : (
           <FlagsPanel redFlags={result.red_flags} greenFlags={result.green_flags} />
         )}
@@ -134,10 +166,7 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
 
       {/* Score Breakdown */}
       <div>
-        <SectionTitle>
-          <span className="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center text-xs">📊</span>
-          Score Breakdown
-        </SectionTitle>
+        <SectionTitle mono="03">Score Breakdown</SectionTitle>
         {hasAI && ai.dimension_scores && ai.composite_score != null ? (
           <DimensionScores scores={ai.dimension_scores} compositeScore={ai.composite_score} />
         ) : (
@@ -147,16 +176,14 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
 
       {/* Nearby POIs */}
       <div>
-        <SectionTitle>
-          <span className="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center text-xs">📍</span>
-          Nearby Amenities
-        </SectionTitle>
+        <SectionTitle mono="04">Nearby Amenities</SectionTitle>
         <NearbyPOIs pois={result.nearby_pois} />
       </div>
 
       {/* Alternatives */}
       {result.alternatives.length > 0 && (
         <div>
+          <SectionTitle mono="05">Consider These Alternatives</SectionTitle>
           <AlternativesPanel alternatives={result.alternatives} />
         </div>
       )}
@@ -164,18 +191,18 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
       {/* Data Gaps */}
       {hasAI && ai.data_gaps.length > 0 && (
         <div>
-          <SectionTitle>
-            <span className="w-6 h-6 bg-yellow-100 rounded-lg flex items-center justify-center text-xs">🔎</span>
-            Data Gaps — Verify Manually
-          </SectionTitle>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <p className="text-xs text-amber-700 mb-3 font-medium">
-              The following factors could not be assessed from available data. Check these before proceeding:
+          <SectionTitle mono="06">Data Gaps — Verify Manually</SectionTitle>
+          <div
+            className="rounded-xl p-5"
+            style={{ background: '#fffbeb', border: '1px solid #fde68a' }}
+          >
+            <p className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: '#92400e', fontFamily: "'DM Mono', monospace" }}>
+              Could not be assessed from available data — check before proceeding:
             </p>
-            <ul className="space-y-1.5">
+            <ul className="space-y-2">
               {ai.data_gaps.map((gap, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-amber-800">
-                  <span className="mt-0.5 flex-shrink-0">•</span>
+                <li key={i} className="flex items-start gap-2 text-xs" style={{ color: '#78350f' }}>
+                  <span className="mt-0.5 flex-shrink-0 font-mono">›</span>
                   {gap}
                 </li>
               ))}
@@ -185,9 +212,12 @@ export default function ResultsLayout({ result, address }: ResultsLayoutProps) {
       )}
 
       {/* Footer */}
-      <div className="text-center py-4">
-        <p className="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed">
-          PropScore provides AI-generated analysis for informational purposes only. This is not financial advice.
+      <div className="text-center pt-2 pb-6">
+        <div className="inline-block px-4 py-1 rounded-full mb-3" style={{ background: '#f8f7f9' }}>
+          <span className="text-xs" style={{ color: '#8fa998', fontFamily: "'DM Mono', monospace" }}>PROPSCORE · AU PROPERTY INTELLIGENCE</span>
+        </div>
+        <p className="text-xs max-w-lg mx-auto leading-relaxed" style={{ color: '#94a3b8' }}>
+          AI-generated analysis for informational purposes only. Not financial advice.
           Always consult a licensed professional before making property investment decisions.
         </p>
       </div>

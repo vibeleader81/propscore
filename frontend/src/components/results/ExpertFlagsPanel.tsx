@@ -8,40 +8,52 @@ interface ExpertFlagsPanelProps {
 
 const FLAG_CONFIG = {
   red: {
-    emoji: '🚩',
+    symbol: '🚩',
     label: 'Red Flag',
-    bg: 'bg-rose-50',
-    border: 'border-rose-200',
-    badge: 'bg-rose-100 text-rose-800',
-    text: 'text-rose-800',
-    headerBg: 'bg-rose-100',
+    bg: '#fff5f5',
+    border: '#fecaca',
+    headerBg: '#fef2f2',
+    labelColor: '#991b1b',
+    textColor: '#7f1d1d',
+    countBg: '#fee2e2',
+    countColor: '#991b1b',
+    desc: 'Unchangeable negative',
   },
   golden: {
-    emoji: '⭐',
+    symbol: '⭐',
     label: 'Golden Flag',
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    badge: 'bg-amber-100 text-amber-800',
-    text: 'text-amber-800',
-    headerBg: 'bg-amber-100',
+    bg: '#fffbeb',
+    border: '#fde68a',
+    headerBg: '#fef9c3',
+    labelColor: '#92400e',
+    textColor: '#78350f',
+    countBg: '#fef3c7',
+    countColor: '#92400e',
+    desc: 'Unchangeable positive',
   },
   green: {
-    emoji: '✅',
+    symbol: '✅',
     label: 'Green Flag',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    badge: 'bg-emerald-100 text-emerald-800',
-    text: 'text-emerald-800',
-    headerBg: 'bg-emerald-100',
+    bg: '#f0fdf4',
+    border: '#bbf7d0',
+    headerBg: '#dcfce7',
+    labelColor: '#166534',
+    textColor: '#14532d',
+    countBg: '#bbf7d0',
+    countColor: '#166534',
+    desc: 'Changeable positive',
   },
   fixable: {
-    emoji: '🔧',
+    symbol: '🔧',
     label: 'Fixable',
-    bg: 'bg-slate-50',
-    border: 'border-slate-200',
-    badge: 'bg-slate-100 text-slate-700',
-    text: 'text-slate-700',
-    headerBg: 'bg-slate-100',
+    bg: '#f8fafc',
+    border: '#e2e8f0',
+    headerBg: '#f1f5f9',
+    labelColor: '#475569',
+    textColor: '#334155',
+    countBg: '#e2e8f0',
+    countColor: '#475569',
+    desc: 'Cost implication',
   },
 }
 
@@ -57,14 +69,20 @@ export default function ExpertFlagsPanel({ flags, hasVeto, vetoReasons }: Expert
     <div className="space-y-4">
       {/* Critical veto banner */}
       {hasVeto && vetoReasons.length > 0 && (
-        <div className="bg-rose-600 text-white rounded-xl px-5 py-4">
-          <div className="flex items-center gap-2 mb-2 font-bold text-sm uppercase tracking-wide">
-            <span>⛔</span> CRITICAL — PURCHASE NOT RECOMMENDED
+        <div
+          className="rounded-xl px-6 py-5"
+          style={{ background: 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)', border: '1px solid #b91c1c' }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-base">⛔</span>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-white" style={{ fontFamily: "'DM Mono', monospace" }}>
+              CRITICAL — PURCHASE NOT RECOMMENDED
+            </span>
           </div>
-          <ul className="space-y-1">
+          <ul className="space-y-1.5">
             {vetoReasons.map((r, i) => (
-              <li key={i} className="text-sm text-rose-100 flex items-start gap-2">
-                <span className="mt-0.5 flex-shrink-0">•</span>
+              <li key={i} className="text-sm flex items-start gap-2" style={{ color: '#fca5a5' }}>
+                <span className="mt-0.5 flex-shrink-0">›</span>
                 {r}
               </li>
             ))}
@@ -72,12 +90,17 @@ export default function ExpertFlagsPanel({ flags, hasVeto, vetoReasons }: Expert
         </div>
       )}
 
-      {/* Flag legend */}
-      <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-        <span className="flex items-center gap-1"><span>🚩</span> Unchangeable negative</span>
-        <span className="flex items-center gap-1"><span>⭐</span> Unchangeable positive</span>
-        <span className="flex items-center gap-1"><span>✅</span> Changeable positive</span>
-        <span className="flex items-center gap-1"><span>🔧</span> Fixable (cost implication)</span>
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4">
+        {FLAG_ORDER.map(type => {
+          const cfg = FLAG_CONFIG[type]
+          return (
+            <span key={type} className="flex items-center gap-1.5 text-xs" style={{ color: '#64748b', fontFamily: "'DM Mono', monospace" }}>
+              <span>{cfg.symbol}</span>
+              <span>{cfg.desc}</span>
+            </span>
+          )
+        })}
       </div>
 
       {/* Flag groups */}
@@ -87,21 +110,35 @@ export default function ExpertFlagsPanel({ flags, hasVeto, vetoReasons }: Expert
           if (items.length === 0) return null
           const cfg = FLAG_CONFIG[type]
           return (
-            <div key={type} className={`${cfg.bg} ${cfg.border} border rounded-2xl p-4`}>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-base">{cfg.emoji}</span>
-                <span className={`text-xs font-bold uppercase tracking-wide ${cfg.text}`}>
+            <div
+              key={type}
+              className="rounded-2xl overflow-hidden"
+              style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, borderTop: `3px solid ${cfg.border}` }}
+            >
+              <div
+                className="px-4 py-3 flex items-center gap-2"
+                style={{ background: cfg.headerBg, borderBottom: `1px solid ${cfg.border}` }}
+              >
+                <span className="text-sm">{cfg.symbol}</span>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: cfg.labelColor, fontFamily: "'DM Mono', monospace" }}>
                   {cfg.label}s
                 </span>
-                <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${cfg.badge}`}>
+                <span
+                  className="ml-auto text-xs font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: cfg.countBg, color: cfg.countColor, fontFamily: "'DM Mono', monospace" }}
+                >
                   {items.length}
                 </span>
               </div>
-              <ul className="space-y-2.5">
+              <ul className="divide-y" style={{ borderColor: cfg.border }}>
                 {items.map((flag, i) => (
-                  <li key={i} className="space-y-0.5">
-                    <div className={`text-xs font-semibold ${cfg.text}`}>{flag.factor}</div>
-                    <div className={`text-xs leading-relaxed ${cfg.text} opacity-80`}>{flag.explanation}</div>
+                  <li key={i} className="px-4 py-3 space-y-0.5">
+                    <div className="text-xs font-semibold" style={{ color: cfg.labelColor }}>
+                      {flag.factor}
+                    </div>
+                    <div className="text-xs leading-relaxed" style={{ color: cfg.textColor, opacity: 0.85 }}>
+                      {flag.explanation}
+                    </div>
                   </li>
                 ))}
               </ul>
