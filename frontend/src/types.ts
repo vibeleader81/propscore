@@ -14,6 +14,7 @@ export interface AssessmentRequest {
   property_type: PropertyType
   recaptcha_token?: string
   form_load_time?: number
+  domain_listing_url?: string
 }
 
 export interface PillarBreakdown {

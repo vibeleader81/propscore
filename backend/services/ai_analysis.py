@@ -134,14 +134,52 @@ def _build_property_context(
     financials: dict,
     domain_intel: Optional[dict] = None,
     domain_perf: Optional[dict] = None,
+    listing_content: Optional[dict] = None,
 ) -> str:
     prop = property_data
     stats = suburb_stats or {}
     walk_counts = (walkability or {}).get("counts", {})
 
-    lines = [
-        "PROPERTY DATA FOR ANALYSIS",
-        "",
+    lines: list[str] = ["PROPERTY DATA FOR ANALYSIS", ""]
+
+    # -----------------------------------------------------------------------
+    # Domain listing content — agent's own description, features, tagline.
+    # This is the most property-specific data available. Prioritise findings
+    # from this section when forming judgements about the specific dwelling.
+    # -----------------------------------------------------------------------
+    if listing_content:
+        lines += [
+            "=== AGENT LISTING DESCRIPTION (Domain.com.au — verbatim) ===",
+            "NOTE: This is the agent's marketing copy for this specific property.",
+            "Extract specific facts: orientation, views, renovation status, room details,",
+            "building materials, outlook, street noise, storage, unique features.",
+            "Treat marketing language critically — verify claims against other data.",
+            "",
+        ]
+        if listing_content.get("headline"):
+            lines.append(f"Headline: {listing_content['headline']}")
+        if listing_content.get("tagline"):
+            lines.append(f"Tagline: {listing_content['tagline']}")
+        if listing_content.get("description"):
+            lines += [
+                "",
+                "Full Description:",
+                listing_content["description"],
+            ]
+        if listing_content.get("features"):
+            lines += [
+                "",
+                f"Listed Features: {', '.join(listing_content['features'])}",
+            ]
+        if listing_content.get("land_area"):
+            lines.append(f"Land Area (listing): {listing_content['land_area']} sqm")
+        if listing_content.get("building_area"):
+            lines.append(f"Building Area (listing): {listing_content['building_area']} sqm")
+        if listing_content.get("display_price"):
+            lines.append(f"Asking Price (listing): {listing_content['display_price']}")
+        lines += ["", "=== END AGENT DESCRIPTION ===", ""]
+
+    lines += [
         "=== PROPERTY DETAILS ===",
         f"Address: {prop.get('address', 'Unknown')}",
         f"Suburb: {prop.get('suburb', '')}, {prop.get('state', '')}, {prop.get('postcode', '')}",
@@ -369,6 +407,7 @@ async def analyse_property(
     api_key: str,
     domain_intel: Optional[dict] = None,
     domain_perf: Optional[dict] = None,
+    listing_content: Optional[dict] = None,
 ) -> dict:
     """
     Call Claude to analyse property data using the expert framework.
@@ -380,6 +419,7 @@ async def analyse_property(
         property_data, suburb_stats, nearby, walkability, risk, financials,
         domain_intel=domain_intel,
         domain_perf=domain_perf,
+        listing_content=listing_content,
     )
 
     message = await client.messages.create(

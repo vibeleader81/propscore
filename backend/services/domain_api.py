@@ -17,6 +17,7 @@ All functions degrade gracefully — return None or [] on any error.
 from __future__ import annotations
 
 import asyncio
+import re
 import time
 from typing import Optional
 
@@ -518,6 +519,97 @@ async def get_alternative_listings(
     )
     listings = [p for p in (_parse_listing(w) for w in raw) if p]
     return listings[:5]
+
+
+# ---------------------------------------------------------------------------
+# Listing URL → rich listing content (for AI context enrichment)
+# ---------------------------------------------------------------------------
+
+def extract_listing_id_from_url(url: str) -> Optional[str]:
+    """
+    Extract a Domain listing ID from a Domain.com.au listing URL.
+
+    Supports formats:
+      https://www.domain.com.au/1-example-st-suburb-nsw-2000-2016839485
+      https://www.domain.com.au/property-profile/...   (no listing ID — returns None)
+      https://domain.com.au/....-2016839485?...
+
+    Returns the numeric listing ID string, or None if not found.
+    """
+    # Strip query string and trailing slashes
+    clean = url.split("?")[0].rstrip("/")
+    # Listing IDs are 7–12 digit numbers at the end of the path segment
+    match = re.search(r"-(\d{7,12})$", clean)
+    return match.group(1) if match else None
+
+
+async def fetch_listing_content(
+    listing_id: str,
+    client_id: str,
+    client_secret: str,
+) -> Optional[dict]:
+    """
+    Fetch the full Domain listing record for a known listing ID.
+
+    Returns a dict with:
+      - headline, tagline, description (agent marketing copy)
+      - features list
+      - land_area, building_area
+      - property_type, bedrooms, bathrooms, parking
+      - listing_url
+
+    Returns None gracefully on any error.
+    """
+    try:
+        token = await _get_oauth_token(client_id, client_secret)
+    except Exception:
+        return None
+
+    try:
+        async with httpx.AsyncClient(timeout=12.0) as client:
+            resp = await client.get(
+                f"{DOMAIN_BASE_URL}/listings/{listing_id}",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            if not resp.is_success:
+                return None
+            data = resp.json()
+    except Exception:
+        return None
+
+    prop = data.get("propertyDetails") or data.get("property") or data
+    pricing = data.get("priceDetails") or data.get("pricingDetails") or {}
+    land = data.get("landDetails") or {}
+    building = data.get("buildingDetails") or {}
+
+    # Description is the most valuable field — it's the agent's full marketing text
+    description: str = (
+        data.get("description")
+        or data.get("summary")
+        or ""
+    ).strip()
+
+    features: list[str] = (
+        data.get("features")
+        or prop.get("features")
+        or []
+    )
+
+    return {
+        "listing_id":    listing_id,
+        "headline":      data.get("headline") or prop.get("displayableAddress", ""),
+        "tagline":       data.get("tagline") or "",
+        "description":   description,
+        "features":      features,
+        "land_area":     land.get("area") or prop.get("landArea"),
+        "building_area": building.get("area") or prop.get("buildingArea"),
+        "property_type": _map_property_type(prop.get("propertyType") or ""),
+        "bedrooms":      prop.get("bedrooms"),
+        "bathrooms":     prop.get("bathrooms"),
+        "parking":       prop.get("carspaces"),
+        "display_price": pricing.get("displayPrice") or "",
+        "listing_url":   f"https://www.domain.com.au/{listing_id}",
+    }
 
 
 # ---------------------------------------------------------------------------

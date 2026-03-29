@@ -28,6 +28,11 @@ class AssessmentRequest(BaseModel):
         description="Property type: house | unit | apartment | townhouse",
     )
 
+    # Optional Domain listing URL — unlocks rich agent description for AI
+    domain_listing_url: Optional[str] = Field(
+        default=None, description="Full Domain.com.au listing URL to enrich AI analysis"
+    )
+
     # Bot protection
     recaptcha_token: Optional[str] = Field(
         default=None, description="reCAPTCHA v3 token from frontend"

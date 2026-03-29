@@ -173,6 +173,8 @@ function NumberSelector({
 
 export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
   const [address, setAddress] = useState('')
+  const [domainListingUrl, setDomainListingUrl] = useState('')
+  const [urlValid, setUrlValid] = useState<boolean | null>(null)
   const [propertyType, setPropertyType] = useState<PropertyType>('house')
   const [priceStr, setPriceStr] = useState('')
   const [bedrooms, setBedrooms] = useState(3)
@@ -264,6 +266,7 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
       property_type: propertyType,
       recaptcha_token: recaptchaToken,
       form_load_time: formLoadTime.current,
+      domain_listing_url: domainListingUrl.trim() || undefined,
     })
   }
 
@@ -448,6 +451,48 @@ export default function PropertyForm({ onSubmit, isLoading }: PropertyFormProps)
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Domain listing URL — optional, enriches AI analysis */}
+              <div>
+                <FieldLabel>Domain Listing URL <span style={{ fontWeight: 400, color: '#6daedb', textTransform: 'none', letterSpacing: 0, fontSize: '11px' }}>(optional — unlocks richer AI analysis)</span></FieldLabel>
+                <div style={{ position: 'relative' }}>
+                  <TextInput
+                    type="url"
+                    value={domainListingUrl}
+                    onChange={e => {
+                      const val = e.target.value
+                      setDomainListingUrl(val)
+                      if (!val) { setUrlValid(null); return }
+                      const isDomain = /domain\.com\.au\/.+-\d{7,12}/.test(val)
+                      setUrlValid(isDomain)
+                    }}
+                    placeholder="https://www.domain.com.au/3-example-st-suburb-nsw-2000-2016839485"
+                  />
+                  {urlValid === true && (
+                    <span style={{
+                      position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                      display: 'flex', alignItems: 'center', gap: '4px',
+                      fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#059669',
+                    }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Valid listing URL
+                    </span>
+                  )}
+                  {urlValid === false && domainListingUrl && (
+                    <span style={{
+                      position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                      fontFamily: "'DM Mono', monospace", fontSize: '9px', color: '#e53e3e',
+                    }}>
+                      Paste a Domain listing link
+                    </span>
+                  )}
+                </div>
+                <p style={{ marginTop: '5px', fontFamily: "'Inter', sans-serif", fontSize: '11px', color: 'rgba(109,174,219,0.7)', lineHeight: 1.5 }}>
+                  Paste the Domain.com.au property listing URL to feed the agent description, room details and features directly into the AI analysis.
+                </p>
               </div>
 
               {/* Property type */}

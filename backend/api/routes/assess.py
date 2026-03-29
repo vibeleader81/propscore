@@ -124,12 +124,24 @@ async def assess_property(request: AssessmentRequest, req: Request) -> Assessmen
         else _noop()
     )
 
-    walkability_raw, risk_raw, domain_perf_raw, domain_intel_raw, alt_listings_raw = await asyncio.gather(
+    # Fetch full listing content if the user supplied a Domain URL
+    listing_content_task: asyncio.coroutines = _noop()
+    if request.domain_listing_url and settings.DOMAIN_CLIENT_ID and settings.DOMAIN_CLIENT_SECRET:
+        listing_id = domain_api.extract_listing_id_from_url(request.domain_listing_url)
+        if listing_id:
+            listing_content_task = domain_api.fetch_listing_content(
+                listing_id=listing_id,
+                client_id=settings.DOMAIN_CLIENT_ID,
+                client_secret=settings.DOMAIN_CLIENT_SECRET,
+            )
+
+    walkability_raw, risk_raw, domain_perf_raw, domain_intel_raw, alt_listings_raw, listing_content_raw = await asyncio.gather(
         overpass.get_walkability_data(lat, lng),
         risk_data.get_risk_profile(lat, lng, state),
         domain_perf_task,
         domain_intel_task,
         alt_listings_task,
+        listing_content_task,
         return_exceptions=False,
     )
 
@@ -321,6 +333,7 @@ async def assess_property(request: AssessmentRequest, req: Request) -> Assessmen
                 },
                 domain_intel=domain_intel_raw,
                 domain_perf=domain_perf_raw,
+                listing_content=listing_content_raw,
                 api_key=settings.ANTHROPIC_API_KEY,
             )
 
