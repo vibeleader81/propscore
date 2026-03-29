@@ -132,6 +132,8 @@ def _build_property_context(
     walkability: Optional[dict],
     risk: Optional[dict],
     financials: dict,
+    domain_intel: Optional[dict] = None,
+    domain_perf: Optional[dict] = None,
 ) -> str:
     prop = property_data
     stats = suburb_stats or {}
@@ -250,6 +252,110 @@ def _build_property_context(
             "  Flood and bushfire data NOT AVAILABLE — buyer must check with council and state planning portals",
         ]
 
+    # -----------------------------------------------------------------------
+    # Domain.com.au enrichment (steps 1-5 from property intelligence pipeline)
+    # -----------------------------------------------------------------------
+
+    if domain_intel:
+        dd = domain_intel.get("domain_details") or {}
+        ph = domain_intel.get("price_history") or []
+        ev = domain_intel.get("estimated_value")
+        comps = domain_intel.get("comparable_sales") or []
+        pid = domain_intel.get("property_id")
+
+        # --- Domain property record (confirms or contradicts user-entered data) ---
+        lines += ["", "=== DOMAIN.COM.AU PROPERTY RECORD ==="]
+        if pid:
+            lines.append(f"  Domain Property ID: {pid}")
+        if dd:
+            lines += [
+                f"  Verified Bedrooms:     {dd.get('bedrooms', 'Unknown')}",
+                f"  Verified Bathrooms:    {dd.get('bathrooms', 'Unknown')}",
+                f"  Verified Car Spaces:   {dd.get('carspaces', 'Unknown')}",
+                f"  Verified Land Area:    {dd.get('land_area', 'Unknown')} sqm",
+                f"  Verified Building Area:{dd.get('building_area', 'Unknown')} sqm",
+                f"  Verified Year Built:   {dd.get('year_built', 'Unknown')}",
+                f"  Verified Type:         {dd.get('property_type', 'Unknown')}",
+            ]
+            if dd.get("features"):
+                lines.append(f"  Features: {', '.join(dd['features'][:8])}")
+            # Flag discrepancies between Domain record and user-supplied data
+            user_beds = property_data.get("bedrooms")
+            user_land = property_data.get("land_size_sqm")
+            if dd.get("bedrooms") and user_beds and dd["bedrooms"] != user_beds:
+                lines.append(f"  ⚠ DISCREPANCY: User entered {user_beds} bedrooms but Domain record shows {dd['bedrooms']}")
+            if dd.get("land_area") and user_land and abs(dd["land_area"] - user_land) > 50:
+                lines.append(f"  ⚠ DISCREPANCY: User entered {user_land}sqm land but Domain record shows {dd['land_area']}sqm")
+        else:
+            lines.append("  Domain property details not available for this address.")
+
+        # --- Price history for this specific property ---
+        lines += ["", "=== THIS PROPERTY'S SALE HISTORY (Domain) ==="]
+        if ph:
+            for entry in ph[:6]:
+                price_str = f"${entry['price']:,.0f}" if entry.get("price") else "price undisclosed"
+                lines.append(f"  {entry.get('date', 'Unknown date')[:10]}  {entry.get('type', 'Sale'):8}  {price_str}")
+            # Calculate growth since last sale if possible
+            sales = [e for e in ph if e.get("type") == "Sale" and e.get("price")]
+            if len(sales) >= 1:
+                last_sale = sales[0]
+                asking = property_data.get("price", 0)
+                if last_sale["price"] and asking:
+                    growth_pct = (asking / last_sale["price"] - 1) * 100
+                    lines.append(f"  Asking price is {growth_pct:+.1f}% vs last recorded sale of ${last_sale['price']:,.0f}")
+        else:
+            lines.append("  No sale history found for this property.")
+
+        if ev:
+            lines += [
+                "",
+                f"  AVM Estimate: ${ev['value']:,.0f}" if ev.get("value") else "",
+            ]
+            if ev.get("low") and ev.get("high"):
+                lines.append(f"  AVM Range:    ${ev['low']:,.0f} – ${ev['high']:,.0f}")
+            asking = property_data.get("price", 0)
+            if ev.get("value") and asking:
+                vs_avm = (asking / ev["value"] - 1) * 100
+                lines.append(f"  Asking price is {vs_avm:+.1f}% vs AVM estimate")
+        lines = [l for l in lines if l != ""]  # remove blank strings from conditional appends
+
+        # --- Comparable recent sales ---
+        lines += ["", "=== COMPARABLE RECENT SALES (within 2km, similar bedrooms) ==="]
+        if comps:
+            prices = [c["price"] for c in comps if c.get("price")]
+            for i, comp in enumerate(comps, 1):
+                beds = f"{comp['bedrooms']}bd" if comp.get("bedrooms") else ""
+                baths = f"{comp['bathrooms']}ba" if comp.get("bathrooms") else ""
+                land = f"{comp['land_area']:.0f}sqm" if comp.get("land_area") else ""
+                spec = " / ".join(filter(None, [beds, baths, land]))
+                price_str = f"${comp['price']:,.0f}" if comp.get("price") else "undisclosed"
+                date_str = (comp.get("sold_date") or "")[:10]
+                lines.append(f"  {i}. {comp['address']} — {spec} — Sold {price_str} ({date_str})")
+            if prices:
+                comp_median = sorted(prices)[len(prices) // 2]
+                asking = property_data.get("price", 0)
+                lines.append(f"  Comp median: ${comp_median:,.0f}  |  Comp range: ${min(prices):,.0f} – ${max(prices):,.0f}")
+                if asking:
+                    vs_comps = (asking / comp_median - 1) * 100
+                    lines.append(f"  Asking price is {vs_comps:+.1f}% vs comp median")
+        else:
+            lines.append("  No comparable recent sales data available.")
+
+    # --- Domain suburb performance (step 5) ---
+    if domain_perf:
+        entries = domain_perf.get("entriesResults") or []
+        if entries:
+            v = entries[0].get("values") or {}
+            lines += [
+                "",
+                "=== SUBURB MARKET PERFORMANCE (Domain.com.au — live data) ===",
+                f"  Median Sale Price:        ${v['median']:,.0f}" if v.get("median") else "  Median Sale Price: Not available",
+                f"  Days on Market (median):  {v['daysOnMarket']} days" if v.get("daysOnMarket") else "  Days on Market: Not available",
+                f"  Auction Clearance Rate:   {v['auctionClearanceRate']:.1f}%" if v.get("auctionClearanceRate") else "  Auction Clearance Rate: Not available",
+                f"  Properties Sold (period): {v['numberSold']}" if v.get("numberSold") else "",
+            ]
+            lines = [l for l in lines if l != ""]
+
     return "\n".join(lines)
 
 
@@ -261,6 +367,8 @@ async def analyse_property(
     risk: Optional[dict],
     financials: dict,
     api_key: str,
+    domain_intel: Optional[dict] = None,
+    domain_perf: Optional[dict] = None,
 ) -> dict:
     """
     Call Claude to analyse property data using the expert framework.
@@ -269,7 +377,9 @@ async def analyse_property(
     client = anthropic.AsyncAnthropic(api_key=api_key)
 
     user_message = _build_property_context(
-        property_data, suburb_stats, nearby, walkability, risk, financials
+        property_data, suburb_stats, nearby, walkability, risk, financials,
+        domain_intel=domain_intel,
+        domain_perf=domain_perf,
     )
 
     message = await client.messages.create(

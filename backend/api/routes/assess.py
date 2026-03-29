@@ -57,7 +57,7 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
 
     nearby_pois_raw = {"schools": schools_raw, "transport": transport_raw, "parks": parks_raw}
 
-    # Step 3b: Additional data sources (parallel)
+    # Step 3b: Additional data sources (all parallel)
     domain_perf_task = (
         domain_api.get_suburb_performance(
             suburb, state, postcode,
@@ -68,10 +68,25 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         else _noop()
     )
 
-    walkability_raw, risk_raw, domain_perf_raw = await asyncio.gather(
+    domain_intel_task = (
+        domain_api.get_property_intelligence(
+            address=request.address,
+            lat=lat,
+            lng=lng,
+            property_type=request.property_type,
+            bedrooms=request.bedrooms,
+            client_id=settings.DOMAIN_CLIENT_ID,
+            client_secret=settings.DOMAIN_CLIENT_SECRET,
+        )
+        if settings.DOMAIN_CLIENT_ID and settings.DOMAIN_CLIENT_SECRET
+        else _noop()
+    )
+
+    walkability_raw, risk_raw, domain_perf_raw, domain_intel_raw = await asyncio.gather(
         overpass.get_walkability_data(lat, lng),
         risk_data.get_risk_profile(lat, lng, state),
         domain_perf_task,
+        domain_intel_task,
         return_exceptions=False,
     )
 
@@ -253,6 +268,8 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
                     "lvr_pct": round((request.price - request.deposit) / request.price * 100, 1) if request.price > 0 else 100.0,
                     "lmi_required": request.deposit < request.price * 0.2,
                 },
+                domain_intel=domain_intel_raw,
+                domain_perf=domain_perf_raw,
                 api_key=settings.ANTHROPIC_API_KEY,
             )
 

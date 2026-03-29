@@ -210,6 +210,204 @@ async def lookup_property_by_address(
 
 
 # ---------------------------------------------------------------------------
+# Comparable listings search (OAuth2 Bearer)
+# ---------------------------------------------------------------------------
+
+_DOMAIN_TYPE_MAP: dict[str, list[str]] = {
+    "house":     ["House", "Terrace", "SemiDetached", "Duplex"],
+    "townhouse": ["Townhouse", "Villa"],
+    "apartment": ["ApartmentUnitFlat", "Studio"],
+    "unit":      ["ApartmentUnitFlat", "Studio"],
+}
+
+
+async def _search_comparable_listings(
+    lat: float,
+    lng: float,
+    property_type: str,
+    bedrooms: int,
+    token: str,
+) -> list[dict]:
+    """
+    Find up to 5 recently sold properties within 2km with similar beds/type.
+    Uses OAuth2 Bearer token (api_listings_read scope).
+    """
+    domain_types = _DOMAIN_TYPE_MAP.get(property_type.lower(), ["House"])
+    body = {
+        "geoWindow": {
+            "circle": {
+                "center": {"lat": lat, "lon": lng},
+                "radiusInMeters": 2000,
+            }
+        },
+        "propertyTypes": domain_types,
+        "bedrooms": {"minimum": max(1, bedrooms - 1), "maximum": bedrooms + 1},
+        "listingType": "Sale",
+        "saleMode": "RecentlySold",
+        "pageSize": 5,
+        "sort": {"sortKey": "DateUpdated", "direction": "Descending"},
+    }
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(
+                f"{DOMAIN_BASE_URL}/listings/residential/_search",
+                json=body,
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            if not resp.is_success:
+                return []
+            data = resp.json()
+            return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def _parse_comp(wrapper: dict) -> Optional[dict]:
+    listing = wrapper.get("listing", wrapper)
+    details = listing.get("propertyDetails", {})
+    pricing = listing.get("pricingDetails", {})
+
+    price = (
+        pricing.get("price")
+        or pricing.get("soldPrice")
+        or pricing.get("from")
+    )
+    date = pricing.get("soldDate") or pricing.get("lastUpdatedDateTime", "")[:10]
+    address = (
+        details.get("displayableAddress")
+        or f"{details.get('streetAddress', '')} {details.get('suburb', '')}".strip()
+    )
+
+    if not price or not address:
+        return None
+
+    return {
+        "address": address,
+        "price": int(price),
+        "sold_date": date,
+        "bedrooms": details.get("bedrooms"),
+        "bathrooms": details.get("bathrooms"),
+        "carspaces": details.get("carspaces"),
+        "land_area": details.get("landArea"),
+        "property_type": details.get("propertyType", ""),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Main intelligence orchestrator
+# ---------------------------------------------------------------------------
+
+async def get_property_intelligence(
+    address: str,
+    lat: float,
+    lng: float,
+    property_type: str,
+    bedrooms: int,
+    client_id: str,
+    client_secret: str,
+) -> Optional[dict]:
+    """
+    Run all 4 Domain OAuth2 calls in optimal parallel order and return a
+    combined intelligence dict for feeding into the AI analysis prompt.
+
+    Steps:
+      1. _suggest → propertyId
+      2. /properties/{id}           ┐ parallel
+      3. /properties/{id}/priceDetails ┘
+      4. /listings/_search (comps, recently sold, within 2km)
+
+    Returns None on any fatal error (auth failure, network outage).
+    Individual step failures are noted in result["warnings"].
+    """
+    warnings: list[str] = []
+    try:
+        token = await _get_oauth_token(client_id, client_secret)
+    except Exception as exc:
+        # Auth failure — nothing we can do, bail out silently
+        return None
+
+    property_id = await _suggest_property_id(address, token)
+    if not property_id:
+        warnings.append("Address could not be resolved to a Domain propertyId.")
+        # Still try comps even if we can't get the specific property record
+        comps_raw = await _search_comparable_listings(lat, lng, property_type, bedrooms, token)
+        comps = [c for c in (_parse_comp(w) for w in comps_raw) if c]
+        return {
+            "property_id": None,
+            "domain_details": None,
+            "price_history": [],
+            "estimated_value": None,
+            "comparable_sales": comps,
+            "warnings": warnings,
+        }
+
+    # Fetch property record, price history, and comps in parallel
+    details_raw, price_raw, comps_raw = await asyncio.gather(
+        _fetch_property_details(property_id, token),
+        _fetch_price_details(property_id, token),
+        _search_comparable_listings(lat, lng, property_type, bedrooms, token),
+    )
+
+    # --- Parse property details ---
+    domain_details: Optional[dict] = None
+    if details_raw:
+        addr = details_raw.get("address") or {}
+        domain_details = {
+            "bedrooms":      details_raw.get("bedrooms"),
+            "bathrooms":     details_raw.get("bathrooms"),
+            "carspaces":     details_raw.get("carSpaces") or details_raw.get("carspaces"),
+            "land_area":     details_raw.get("landArea"),
+            "building_area": details_raw.get("buildingArea"),
+            "year_built":    details_raw.get("yearBuilt"),
+            "property_type": details_raw.get("propertyType"),
+            "suburb":        addr.get("suburb"),
+            "state":         addr.get("state"),
+            "features":      details_raw.get("features") or [],
+        }
+    else:
+        warnings.append("Property details unavailable from Domain.")
+
+    # --- Parse price history ---
+    price_history: list[dict] = []
+    estimated_value: Optional[dict] = None
+    if price_raw:
+        for entry in (price_raw.get("priceHistory") or []):
+            price_history.append({
+                "date":  entry.get("date", ""),
+                "price": entry.get("price"),
+                "type":  entry.get("type", "Sale"),
+            })
+        # AVM estimate (may be None on free tier)
+        avm = price_raw.get("avm") or {}
+        est = price_raw.get("estimatedValue") or avm.get("value")
+        if est:
+            estimated_value = {
+                "value": est,
+                "low":   price_raw.get("estimatedValueLow") or avm.get("low"),
+                "high":  price_raw.get("estimatedValueHigh") or avm.get("high"),
+            }
+    else:
+        warnings.append("Price history unavailable from Domain (may require paid tier).")
+
+    # --- Parse comparable sales ---
+    comps = [c for c in (_parse_comp(w) for w in comps_raw) if c]
+    if not comps:
+        warnings.append("No comparable recent sales found within 2km.")
+
+    return {
+        "property_id":    property_id,
+        "domain_details": domain_details,
+        "price_history":  price_history,
+        "estimated_value": estimated_value,
+        "comparable_sales": comps,
+        "warnings":       warnings,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Legacy X-Api-Key functions (suburb stats + fallback listing search)
 # ---------------------------------------------------------------------------
 
