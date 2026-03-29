@@ -21,11 +21,13 @@ from models.response import AlternativeSuburb, PillarBreakdown
 # ---------------------------------------------------------------------------
 
 WEIGHTS: dict[str, float] = {
-    "location": 0.30,
-    "affordability": 0.25,
-    "features": 0.20,
-    "suburb_quality": 0.15,
+    "location": 0.25,
+    "affordability": 0.22,
+    "features": 0.18,
+    "suburb_quality": 0.13,
     "investment": 0.10,
+    "walkability": 0.08,
+    "risk": 0.04,
 }
 
 # ---------------------------------------------------------------------------
@@ -650,6 +652,210 @@ def score_investment(
 
 
 # ---------------------------------------------------------------------------
+# 6. Walkability
+# ---------------------------------------------------------------------------
+
+
+def score_walkability(walkability_data: Optional[dict]) -> PillarBreakdown:
+    """
+    Score local amenity density using OpenStreetMap data within 1500m.
+
+    Categories scored: food & drink, supermarkets, healthcare, childcare/education,
+    fitness, and shopping. Each is weighted to form a composite walkability score.
+
+    Args:
+        walkability_data: Dict returned by overpass.get_walkability_data(), or None.
+
+    Returns:
+        PillarBreakdown with composite score, per-category sub_scores, and insights.
+    """
+    if not walkability_data or not walkability_data.get("counts"):
+        return PillarBreakdown(
+            score=55.0,
+            sub_scores={},
+            insights=["Walkability data unavailable — score reflects market average assumption."],
+        )
+
+    counts = walkability_data.get("counts", {})
+    total = walkability_data.get("total", 0)
+
+    # --- Per-category scores ---
+    food_count = counts.get("food_drink", 0)
+    if food_count >= 5:
+        food_score = 100.0
+    elif food_count >= 3:
+        food_score = 80.0
+    elif food_count >= 1:
+        food_score = 60.0
+    else:
+        food_score = 20.0
+
+    super_count = counts.get("supermarkets", 0)
+    if super_count >= 2:
+        super_score = 100.0
+    elif super_count >= 1:
+        super_score = 80.0
+    else:
+        super_score = 30.0
+
+    health_count = counts.get("healthcare", 0)
+    if health_count >= 3:
+        health_score = 100.0
+    elif health_count >= 1:
+        health_score = 70.0
+    else:
+        health_score = 30.0
+
+    child_count = counts.get("childcare_education", 0)
+    if child_count >= 2:
+        child_score = 90.0
+    elif child_count >= 1:
+        child_score = 70.0
+    else:
+        child_score = 40.0
+
+    fitness_count = counts.get("fitness", 0)
+    if fitness_count >= 2:
+        fitness_score = 90.0
+    elif fitness_count >= 1:
+        fitness_score = 70.0
+    else:
+        fitness_score = 40.0
+
+    shop_count = counts.get("shopping", 0)
+    if shop_count >= 3:
+        shop_score = 90.0
+    elif shop_count >= 1:
+        shop_score = 65.0
+    else:
+        shop_score = 35.0
+
+    # Composite
+    composite = (
+        food_score * 0.30
+        + super_score * 0.25
+        + health_score * 0.20
+        + child_score * 0.10
+        + fitness_score * 0.10
+        + shop_score * 0.05
+    )
+
+    # --- Insights ---
+    insights: list[str] = []
+
+    dining_quality = "excellent" if food_count >= 5 else "good" if food_count >= 3 else "limited"
+    insights.append(
+        f"{food_count} cafes and restaurants within 1.5km — {dining_quality} dining options."
+    )
+
+    if super_count >= 1:
+        insights.append("Nearest supermarket is within walking distance.")
+    else:
+        insights.append("Nearest supermarket is not within walking distance — car required for groceries.")
+
+    health_quality = "good" if health_count >= 1 else "limited"
+    insights.append(
+        f"{health_count} healthcare facilities nearby — {health_quality} medical access."
+    )
+
+    insights.append(
+        f"{total} total amenities mapped within 1.5km — "
+        f"{'high' if total >= 20 else 'moderate' if total >= 10 else 'low'} local amenity density."
+    )
+
+    return PillarBreakdown(
+        score=round(composite, 1),
+        sub_scores={
+            "food_drink": food_score,
+            "supermarkets": super_score,
+            "healthcare": health_score,
+            "childcare_education": child_score,
+            "fitness": fitness_score,
+            "shopping": shop_score,
+        },
+        insights=insights,
+    )
+
+
+# ---------------------------------------------------------------------------
+# 7. Risk
+# ---------------------------------------------------------------------------
+
+
+def score_risk(risk_profile: Optional[dict]) -> PillarBreakdown:
+    """
+    Score property risk based on flood and bushfire zone data from government spatial services.
+
+    A clean risk profile (no flood/bushfire zones) yields a high score, while confirmed
+    risk zone membership deducts significant points. Uncertainty (unchecked states) applies
+    a small penalty.
+
+    Args:
+        risk_profile: Dict returned by risk_data.get_risk_profile(), or None.
+
+    Returns:
+        PillarBreakdown with composite score, flood/bushfire sub_scores, and insights.
+    """
+    if risk_profile is None:
+        return PillarBreakdown(
+            score=70.0,
+            sub_scores={"flood": 70.0, "bushfire": 70.0},
+            insights=["Risk data unavailable — score reflects a neutral assumption."],
+        )
+
+    flood_risk: bool = risk_profile.get("flood_risk", False)
+    bushfire_risk: bool = risk_profile.get("bushfire_risk", False)
+    flood_checked: bool = risk_profile.get("flood_checked", False)
+    bushfire_checked: bool = risk_profile.get("bushfire_checked", False)
+    state: str = risk_profile.get("state", "")
+
+    score = 100.0
+    if flood_risk and flood_checked:
+        score -= 40.0
+    if bushfire_risk and bushfire_checked:
+        score -= 35.0
+    if not flood_checked:
+        score -= 5.0
+    if not bushfire_checked:
+        score -= 5.0
+
+    score = max(0.0, min(100.0, score))
+
+    # Sub-scores for display
+    flood_sub = 60.0 if (flood_risk and flood_checked) else (95.0 if flood_checked else 70.0)
+    bushfire_sub = 65.0 if (bushfire_risk and bushfire_checked) else (95.0 if bushfire_checked else 70.0)
+
+    # --- Insights ---
+    insights: list[str] = []
+
+    if flood_risk and flood_checked:
+        insights.append(
+            "⚠️ Property is located in a mapped flood zone — check council flood overlays and insurance costs."
+        )
+    if bushfire_risk and bushfire_checked:
+        insights.append(
+            "⚠️ Property is in a bushfire-prone area — factor in BAL rating and insurance premiums."
+        )
+    if not flood_risk and not bushfire_risk and flood_checked and bushfire_checked:
+        insights.append(
+            "No flood or bushfire risk detected in government databases — positive for insurance costs and lender appetite."
+        )
+    if not flood_checked or not bushfire_checked:
+        insights.append(
+            f"Flood/bushfire risk data not available for {state} — recommend independent council check."
+        )
+
+    return PillarBreakdown(
+        score=round(score, 1),
+        sub_scores={
+            "flood": flood_sub,
+            "bushfire": bushfire_sub,
+        },
+        insights=insights,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Flag generators
 # ---------------------------------------------------------------------------
 
@@ -659,6 +865,8 @@ def generate_red_flags(
     repayment_ratio: float,
     borrowing_ratio: float,
     suburb_stats: Optional[dict],
+    walkability_score: float = 0.0,
+    risk_profile: Optional[dict] = None,
 ) -> list[str]:
     """Generate specific risk warnings for the assessment."""
     flags: list[str] = []
@@ -715,6 +923,21 @@ def generate_red_flags(
             "Property features score is low — limited bedrooms, bathrooms, or parking may restrict the buyer pool on resale."
         )
 
+    if walkability_score < 40:
+        flags.append(
+            "Poor walkability score — limited cafes, shops, or healthcare within 1.5km."
+        )
+
+    if risk_profile:
+        if risk_profile.get("flood_risk") and risk_profile.get("flood_checked"):
+            flags.append(
+                "⚠️ Flood zone — significantly impacts insurance costs and resale to risk-averse buyers."
+            )
+        if risk_profile.get("bushfire_risk") and risk_profile.get("bushfire_checked"):
+            flags.append(
+                "⚠️ Bushfire-prone area — elevated insurance premiums and potential building restrictions."
+            )
+
     return flags
 
 
@@ -722,6 +945,8 @@ def generate_green_flags(
     pillars: dict[str, PillarBreakdown],
     nearby_pois: dict[str, list[dict]],
     suburb_stats: Optional[dict],
+    walkability_score: float = 0.0,
+    risk_profile: Optional[dict] = None,
 ) -> list[str]:
     """Generate specific positive highlights for the assessment."""
     flags: list[str] = []
@@ -781,6 +1006,22 @@ def generate_green_flags(
             "Above-average suburb quality indicators — solid capital growth, low vacancy, and brisk sales pace."
         )
 
+    if walkability_score >= 80:
+        flags.append(
+            "Excellent walkability — strong local amenity density supports lifestyle and rental appeal."
+        )
+
+    if risk_profile:
+        flood_risk = risk_profile.get("flood_risk", False)
+        bushfire_risk = risk_profile.get("bushfire_risk", False)
+        flood_checked = risk_profile.get("flood_checked", False)
+        bushfire_checked = risk_profile.get("bushfire_checked", False)
+        risk_available = flood_checked or bushfire_checked
+        if risk_available and not flood_risk and not bushfire_risk:
+            flags.append(
+                "Clean risk profile — no flood or bushfire zones detected."
+            )
+
     return flags
 
 
@@ -808,6 +1049,8 @@ def generate_buyers_agent_summary(
         "features": "property features",
         "suburb_quality": "suburb fundamentals",
         "investment": "investment metrics",
+        "walkability": "walkability",
+        "risk": "risk profile",
     }
 
     action_map = {

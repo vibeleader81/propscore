@@ -26,6 +26,27 @@ class AlternativeSuburb(BaseModel):
     score_delta: float
 
 
+class WalkabilityData(BaseModel):
+    counts: dict[str, int] = {}
+    total: int = 0
+    radius_m: int = 1500
+
+
+class RiskProfile(BaseModel):
+    flood_risk: bool = False
+    bushfire_risk: bool = False
+    flood_checked: bool = False
+    bushfire_checked: bool = False
+
+
+class DomainMarketData(BaseModel):
+    median_sale_price: Optional[float] = None
+    days_on_market: Optional[int] = None
+    number_sold: Optional[int] = None
+    auction_clearance_rate: Optional[float] = None
+    data_available: bool = False
+
+
 class AssessmentResponse(BaseModel):
     overall_score: float
     band: str
@@ -42,3 +63,6 @@ class AssessmentResponse(BaseModel):
     alternatives: list[AlternativeSuburb]
     monthly_repayment: float
     borrowing_capacity: float
+    walkability: Optional[WalkabilityData] = None
+    risk_profile: Optional[RiskProfile] = None
+    domain_market_data: Optional[DomainMarketData] = None

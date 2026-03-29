@@ -1,11 +1,16 @@
 import asyncio
 from fastapi import APIRouter, HTTPException
 from models.request import AssessmentRequest
-from models.response import AssessmentResponse, AlternativeSuburb, NearbyPOI
-from services import google_maps, suburb_data, scoring
+from models.response import AssessmentResponse, AlternativeSuburb, NearbyPOI, WalkabilityData, RiskProfile, DomainMarketData
+from services import google_maps, suburb_data, scoring, overpass, domain_api, risk_data
 from config import settings
 
 router = APIRouter()
+
+
+async def _noop() -> None:
+    """No-op coroutine used as a placeholder when an optional service is disabled."""
+    return None
 
 
 @router.post("/assess", response_model=AssessmentResponse)
@@ -64,6 +69,28 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
     }
 
     # ------------------------------------------------------------------
+    # Step 3b: Additional data sources (parallel)
+    # ------------------------------------------------------------------
+    walkability_task = overpass.get_walkability_data(lat, lng)
+    risk_task = risk_data.get_risk_profile(lat, lng, state)
+
+    domain_perf_task = (
+        domain_api.get_suburb_performance(
+            suburb,
+            state,
+            postcode,
+            "house" if request.property_type.lower() in ("house", "townhouse") else "unit",
+            settings.DOMAIN_API_KEY,
+        )
+        if settings.DOMAIN_API_KEY
+        else _noop()
+    )
+
+    walkability_raw, risk_raw, domain_perf_raw = await asyncio.gather(
+        walkability_task, risk_task, domain_perf_task, return_exceptions=False
+    )
+
+    # ------------------------------------------------------------------
     # Step 4: Score pillars
     # ------------------------------------------------------------------
     location_pillar = scoring.score_location(nearby_pois_raw, lat, lng, stats)
@@ -93,12 +120,17 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         land_size_sqm=request.land_size_sqm,
     )
 
+    walkability_pillar = scoring.score_walkability(walkability_raw)
+    risk_pillar = scoring.score_risk(risk_raw)
+
     pillars = {
         "location": location_pillar,
         "affordability": affordability_pillar,
         "features": features_pillar,
         "suburb_quality": suburb_quality_pillar,
         "investment": investment_pillar,
+        "walkability": walkability_pillar,
+        "risk": risk_pillar,
     }
 
     # ------------------------------------------------------------------
@@ -114,11 +146,26 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
     repayment_ratio = monthly_repayment / disposable if disposable > 0 else 999.0
     borrowing_ratio = request.price / borrowing_capacity
 
-    red_flags = scoring.generate_red_flags(pillars, repayment_ratio, borrowing_ratio, stats)
-    green_flags = scoring.generate_green_flags(pillars, nearby_pois_raw, stats)
+    walkability_score = walkability_pillar.score
+    red_flags = scoring.generate_red_flags(pillars, repayment_ratio, borrowing_ratio, stats, walkability_score, risk_raw)
+    green_flags = scoring.generate_green_flags(pillars, nearby_pois_raw, stats, walkability_score, risk_raw)
     summary = scoring.generate_buyers_agent_summary(
         overall_score, band, pillars, suburb, request.price
     )
+
+    # Parse Domain market data
+    domain_market: DomainMarketData | None = None
+    if domain_perf_raw:
+        entries = domain_perf_raw.get("entriesResults", [])
+        if entries:
+            latest = entries[0].get("values", {})
+            domain_market = DomainMarketData(
+                median_sale_price=latest.get("median"),
+                days_on_market=latest.get("daysOnMarket"),
+                number_sold=latest.get("numberSold"),
+                auction_clearance_rate=latest.get("auctionClearanceRate"),
+                data_available=True,
+            )
 
     # ------------------------------------------------------------------
     # Step 7: Alternative suburbs
@@ -195,6 +242,17 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         "parks": _to_poi_list(parks_raw, "park"),
     }
 
+    walkability_response = (
+        WalkabilityData(
+            counts=walkability_raw.get("counts", {}),
+            total=walkability_raw.get("total", 0),
+            radius_m=walkability_raw.get("radius_m", 1500),
+        )
+        if walkability_raw
+        else None
+    )
+    risk_response = RiskProfile(**{k: v for k, v in risk_raw.items() if k != "state"}) if risk_raw else None
+
     return AssessmentResponse(
         overall_score=overall_score,
         band=band,
@@ -211,4 +269,7 @@ async def assess_property(request: AssessmentRequest) -> AssessmentResponse:
         alternatives=alternatives,
         monthly_repayment=monthly_repayment,
         borrowing_capacity=borrowing_capacity,
+        walkability=walkability_response,
+        risk_profile=risk_response,
+        domain_market_data=domain_market,
     )
